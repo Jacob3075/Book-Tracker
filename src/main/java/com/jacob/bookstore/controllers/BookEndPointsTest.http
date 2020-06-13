@@ -1,0 +1,19 @@
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+###
+POST http://localhost:8080/api.book-store/books/
+Content-Type: application/json
+
+{
+  "title": "Title1",
+  "author": "Author1"
+}
+
+###
+GET http://localhost:8080/api.book-store/books/2/
+
+###
+
+DELETE http://localhost:8080/api.book-store/books/1
+
