@@ -11,7 +11,8 @@ Content-Type: application/json
 }
 
 ###
-GET http://localhost:8080/api.book-store/books/2/
+GET http://localhost:8080/api.book-store/books/1/
+Accept: application/json
 
 ###
 
