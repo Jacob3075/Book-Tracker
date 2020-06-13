@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
@@ -22,6 +23,7 @@ public class Category {
 	private Long id;
 
 	@Column(name = "category_name")
+	@NotEmpty
 	private String categoryName;
 
 	@ManyToMany(mappedBy = "categories")

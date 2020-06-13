@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 @Entity
@@ -22,6 +23,7 @@ public class Author {
 	private Long id;
 
 	@Column(name = "author_name")
+	@NotEmpty
 	private String authorName;
 
 	@ManyToMany(mappedBy = "authors")
