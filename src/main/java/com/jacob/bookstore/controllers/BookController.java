@@ -18,7 +18,7 @@ public class BookController {
 		this.bookService = bookService;
 	}
 
-	@GetMapping("/books/")
+	@GetMapping(value = "/books/")
 	public List<Book> getBooks() {
 		return bookService.findAll();
 	}
@@ -28,13 +28,17 @@ public class BookController {
 		return bookService.findById(id);
 	}
 
-	@PostMapping("/books")
-	public String createBook(@RequestBody Book book) {
-		bookService.saveAndFlush(book);
-		return "Created";
+	@PostMapping(value = "/books")
+	public String addNewBook(@RequestBody Book book) {
+		System.out.println("book = " + book);
+		if (bookService.addNewBook(book)) {
+			return "Created";
+		} else {
+			return "Already exists";
+		}
 	}
 
-	@DeleteMapping("/books/{id}")
+	@DeleteMapping(value = "/books/{id}")
 	public void deleteBook(@PathVariable Long id, HttpServletResponse response) {
 		if (bookService.deleteById(id)) {
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -44,7 +48,7 @@ public class BookController {
 
 	}
 
-	@PutMapping("books/{id}")
+	@PutMapping(value = "books/{id}")
 	public void updateBook(@PathVariable Long id, @RequestBody Book book, HttpServletResponse response) {
 		if (bookService.updateBook(id, book)) {
 			response.setStatus(HttpServletResponse.SC_OK);

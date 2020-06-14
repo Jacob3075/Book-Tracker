@@ -6,15 +6,43 @@ POST http://localhost:8080/api.book-store/books/
 Content-Type: application/json
 
 {
-  "title": "Title1",
-  "author": "Author1"
+  "name": "Title13",
+  "description": "Description",
+  "authors": [
+    {
+      "authorName": "New Author1"
+    }
+  ]
 }
 
 ###
-GET http://localhost:8080/api.book-store/books/1/
+GET http://localhost:8080/api.book-store/books/10/
 Accept: application/json
 
 ###
 
-DELETE http://localhost:8080/api.book-store/books/1
+DELETE http://localhost:8080/api.book-store/books/11
 
+###
+
+GET http://localhost:8080/api.book-store/authors/
+Accept: application/json
+
+###
+
+POST http://localhost:8080/api.book-store/authors/
+Content-Type: application/json
+
+{
+  "authorName": "New Author1",
+  "books": [
+    {
+      "title": "Book from author",
+      "description": "Description from author"
+    }
+  ]
+}
+
+###
+
+DELETE http://localhost:8080/api.book-store/authors/6
