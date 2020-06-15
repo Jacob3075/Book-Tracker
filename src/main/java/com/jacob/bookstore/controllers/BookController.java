@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "/api.book-store/")
+@RequestMapping(value = "/api.book-store/books/")
 public class BookController {
 
 	private final BookService bookService;
@@ -18,19 +18,18 @@ public class BookController {
 		this.bookService = bookService;
 	}
 
-	@GetMapping(value = "/books/")
+	@GetMapping(value = "/")
 	public List<Book> getBooks() {
 		return bookService.findAll();
 	}
 
-	@GetMapping(value = "books/{id}/")
+	@GetMapping(value = "/{id}")
 	public Optional<Book> getBookById(@PathVariable Long id) {
 		return bookService.findById(id);
 	}
 
-	@PostMapping(value = "/books")
+	@PostMapping(value = "/")
 	public String addNewBook(@RequestBody Book book) {
-		System.out.println("book = " + book);
 		if (bookService.addNewBook(book)) {
 			return "Created";
 		} else {
@@ -38,7 +37,7 @@ public class BookController {
 		}
 	}
 
-	@DeleteMapping(value = "/books/{id}")
+	@DeleteMapping(value = "/{id}")
 	public void deleteBook(@PathVariable Long id, HttpServletResponse response) {
 		if (bookService.deleteById(id)) {
 			response.setStatus(HttpServletResponse.SC_OK);
@@ -48,7 +47,7 @@ public class BookController {
 
 	}
 
-	@PutMapping(value = "books/{id}")
+	@PutMapping(value = "/{id}")
 	public void updateBook(@PathVariable Long id, @RequestBody Book book, HttpServletResponse response) {
 		if (bookService.updateBook(id, book)) {
 			response.setStatus(HttpServletResponse.SC_OK);

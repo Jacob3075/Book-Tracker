@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,21 +26,25 @@ public class Book {
 	@NotEmpty
 	private String description;
 
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name = "book_author",
 			joinColumns = @JoinColumn(columnDefinition = "books_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(columnDefinition = "authors_id", referencedColumnName = "id")
 	)
-	private List<Author> authors;
+	private List<Author> authors = new ArrayList<>();
+//	@JsonIgnoreProperties("books")
+//	private Set<Author> authors = new HashSet<>();
 
-	@ManyToMany
+	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name = "book_category",
 			joinColumns = @JoinColumn(columnDefinition = "books_id", referencedColumnName = "id"),
 			inverseJoinColumns = @JoinColumn(columnDefinition = "categories_id", referencedColumnName = "id")
 	)
-	private List<Category> categories;
+	private List<Category> categories = new ArrayList<>();
+//	@JsonIgnoreProperties("books")
+//	private Set<Category> categories = new HashSet<>();
 
 //	TODO: USE SETS INSTEAD OF LISTS (FIX INFINITE RECURSION WHEN USING SETS)
 }

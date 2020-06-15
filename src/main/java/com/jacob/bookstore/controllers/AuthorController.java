@@ -36,14 +36,11 @@ public class AuthorController {
 
 	@PostMapping(value = "/")
 	public void addNewAuthor(@RequestBody Author author, HttpServletResponse response) {
-		System.out.println("author = " + author);
-		System.out.println("authorService.addNewAuthor(author) = " + authorService.addNewAuthor(author));
-
-//		if (authorService.addNewAuthor(author)) {
-//			response.setStatus(HttpServletResponse.SC_CREATED);
-//		} else {
-//			response.setStatus(HttpServletResponse.SC_CONFLICT);
-//		}
+		if (authorService.addNewAuthor(author)) {
+			response.setStatus(HttpServletResponse.SC_CREATED);
+		} else {
+			response.setStatus(HttpServletResponse.SC_CONFLICT);
+		}
 	}
 
 	@DeleteMapping(value = "/{id}")
@@ -55,8 +52,8 @@ public class AuthorController {
 		}
 	}
 
-	@PostMapping(value = "/{id}")
-	public void updateAuthor(@PathVariable Long id, Author newAuthor, HttpServletResponse response) {
+	@PutMapping(value = "/{id}")
+	public void updateAuthor(@PathVariable Long id, @RequestBody Author newAuthor, HttpServletResponse response) {
 		if (authorService.updateAuthor(id, newAuthor)) {
 			response.setStatus(HttpServletResponse.SC_OK);
 		} else {

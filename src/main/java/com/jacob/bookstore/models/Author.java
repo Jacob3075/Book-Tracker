@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,5 +29,7 @@ public class Author {
 
 	@ManyToMany(mappedBy = "authors")
 	@JsonIgnore
-	private List<Book> books;
+	private List<Book> books = new ArrayList<>();
+//	@JsonIgnoreProperties({"authors", "categories"})
+//	private Set<Book> books = new HashSet<>();
 }

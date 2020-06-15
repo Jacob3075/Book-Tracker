@@ -9,12 +9,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
 public class BookService {
-
-//	TODO: FIX SO THAT DUPLICATE BOOKS ARE NOT ADDED
 
 	private final BookRepository   bookRepository;
 	private final AuthorRepository authorRepository;
@@ -45,42 +44,66 @@ public class BookService {
 		Optional<Book> optionalBook = this.findById(id);
 		if (optionalBook.isPresent()) {
 			Book oldBook = optionalBook.get();
-			BeanUtils.copyProperties(newBook, oldBook, "id");
+
+			BeanUtils.copyProperties(newBook, oldBook, "id", "authors");
+
+			newBook.getAuthors()
+			       .stream()
+			       .filter(this::isNewAuthor)
+			       .forEach(authorRepository::saveAndFlush);
+
+			List<String> oldAuthorNames =
+					oldBook.getAuthors().stream().map(Author::getAuthorName).collect(Collectors.toList());
+
+			newBook.getAuthors()
+			       .stream()
+			       .filter(author -> !oldAuthorNames.contains(author.getAuthorName()))
+			       .forEach(author -> oldBook.getAuthors().add(author));
+
 			bookRepository.saveAndFlush(oldBook);
+
 			return true;
+		} else {
+			return false;
 		}
-		return false;
+	}
+
+	private boolean isNewAuthor(Author author) {
+		return authorRepository.findAuthorsByAuthorName(author.getAuthorName()).isEmpty();
 	}
 
 	public boolean addNewBook(Book book) {
-//		if (this.isNewBook(book)) {
-		addAuthorsFromBook(book.getAuthors());
-		bookRepository.saveAndFlush(book);
-		return true;
-//		} else {
-//			return false;
-//		}
+		if (this.isNewBook(book)) {
+			addAuthorsFromBook(book.getAuthors());
+			Book newBook = new Book();
+			newBook.setName(book.getName());
+			newBook.setDescription(book.getDescription());
+
+			book.getAuthors()
+			    .stream()
+			    .filter(Predicate.not(this::isNewAuthor))
+			    .map(Author::getAuthorName)
+			    .map(authorRepository::findAuthorByAuthorName)
+			    .filter(Optional::isPresent)
+			    .map(author -> author.get().getId())
+			    .forEach(id -> newBook.getAuthors().add(authorRepository.findById(id).get()));
+
+
+			bookRepository.saveAndFlush(newBook);
+			return true;
+		} else {
+			return false;
+		}
 	}
 
-//	private boolean isNewBook(Book book) {
-//		return true;
-//		return this.findById(book.getId()).isEmpty();
-//	}
+	private boolean isNewBook(Book book) {
+		return bookRepository.findBookByName(book.getName()).isEmpty();
+	}
 
 	public void addAuthorsFromBook(List<Author> authors) {
 		List<Author> newAuthors = authors.stream()
 		                                 .filter(this::isNewAuthor)
 		                                 .collect(Collectors.toList());
 		newAuthors.forEach(authorRepository::saveAndFlush);
-//		authorRepository.flush();
 	}
-
-	private boolean isNewAuthor(Author author) {
-//		boolean isNew = this.findById(author.getId()).isEmpty();
-//		if (isNew) {
-//			author.setId(null);
-//		}
-		return true;
-	}
-
 }
