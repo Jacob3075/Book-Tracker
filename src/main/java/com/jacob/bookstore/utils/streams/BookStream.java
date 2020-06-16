@@ -13,13 +13,8 @@ import java.util.stream.Stream;
 
 public class BookStream implements ForwardingStream<Book> {
 
-	private       Stream<Book>           stream;
 	private       List<Book>             books;
 	private final Supplier<Stream<Book>> streamSupplier = () -> this.books.stream();
-
-//	public BookStream(Stream<Book> stream) {
-//		this.stream = stream;
-//	}
 
 	public BookStream(List<Book> books) {
 		this.books = books;
@@ -27,13 +22,11 @@ public class BookStream implements ForwardingStream<Book> {
 
 	public BookStream ifNewBook(BookRepository bookRepository) {
 		Optional<Book> optionalBook = this.getBook();
-		if (optionalBook.isPresent()) {
-			if (isNewBook(optionalBook.get(), bookRepository)) {
-//				return new BookStream(Stream.of(optionalBook.get()));
-				return new BookStream(List.of(optionalBook.get()));
-			}
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
+
+		if (isNewBook(optionalBook.get(), bookRepository)) {
+			return new BookStream(List.of(optionalBook.get()));
 		}
-//		return new BookStream(Stream.empty());
 		return new BookStream(List.of());
 	}
 
@@ -48,31 +41,22 @@ public class BookStream implements ForwardingStream<Book> {
 
 	@Override
 	public Stream<Book> getStream() {
-//		System.out.println("\nCalled\n");
-//		return this.stream;
 		return this.streamSupplier.get();
 	}
 
 	public BookStream ifNotNewBook(BookRepository bookRepository) {
 		Optional<Book> optionalBook = this.getBook();
-		if (optionalBook.isPresent()) {
-			if (isNewBook(optionalBook.get(), bookRepository)) {
-//				return new BookStream(Stream.empty());
-				return new BookStream(List.of());
-			}
-//			return new BookStream(Stream.of(optionalBook.get()));
-			return new BookStream(List.of(optionalBook.get()));
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
+
+		if (isNewBook(optionalBook.get(), bookRepository)) {
+			return new BookStream(List.of());
 		}
-//		return new BookStream(Stream.empty());
-		return new BookStream(List.of());
+		return new BookStream(List.of(optionalBook.get()));
 	}
 
 	public BookStream addNewAuthorsFromBook(AuthorRepository authorRepository) {
 		Optional<Book> optionalBook = this.getBook();
-		if (optionalBook.isEmpty()) {
-			//		return new BookStream(Stream.empty());
-			return new BookStream(List.of());
-		}
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
 		Author.stream(optionalBook.get().getAuthors())
 		      .getNewAuthors(authorRepository)
 		      .forEach(authorRepository::saveAndFlush);
@@ -81,10 +65,7 @@ public class BookStream implements ForwardingStream<Book> {
 
 	public BookStream updateAuthors(AuthorRepository authorRepository) {
 		Optional<Book> optionalBook = this.getBook();
-		if (optionalBook.isEmpty()) {
-			//		return new BookStream(Stream.empty());
-			return new BookStream(List.of());
-		}
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
 		Book         book    = optionalBook.get();
 		List<Author> authors = List.copyOf(book.getAuthors());
 
@@ -94,7 +75,6 @@ public class BookStream implements ForwardingStream<Book> {
 		Author.stream(authors)
 		      .addAuthorsTo(book, authorRepository);
 
-//			return new BookStream(Stream.of(book));
 		return new BookStream(books);
 
 	}

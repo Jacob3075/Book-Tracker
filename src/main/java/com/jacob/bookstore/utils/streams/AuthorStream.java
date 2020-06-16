@@ -14,13 +14,8 @@ import java.util.stream.Stream;
 
 public class AuthorStream implements ForwardingStream<Author> {
 
-	//	private Stream<Author> stream;
 	private       List<Author>             authors;
 	private final Supplier<Stream<Author>> streamSupplier = () -> this.authors.stream();
-
-//	public AuthorStream(Stream<Author> stream) {
-//		this.stream = stream;
-//	}
 
 	public AuthorStream(List<Author> authors) {
 		this.authors = authors;
@@ -87,13 +82,11 @@ public class AuthorStream implements ForwardingStream<Author> {
 
 	public AuthorStream ifNewAuthor(AuthorRepository authorRepository) {
 		Optional<Author> optionalAuthor = this.getAuthor();
-		if (optionalAuthor.isPresent()) {
-			if (isNewAuthor(optionalAuthor.get(), authorRepository)) {
-//				return new AuthorStream(this.getStream());
-				return new AuthorStream(this.authors);
-			}
+		if (optionalAuthor.isEmpty()) return new AuthorStream(List.of());
+
+		if (isNewAuthor(optionalAuthor.get(), authorRepository)) {
+			return new AuthorStream(this.authors);
 		}
-//		return new AuthorStream(Stream.empty());
 		return new AuthorStream(List.of());
 	}
 
@@ -118,10 +111,8 @@ public class AuthorStream implements ForwardingStream<Author> {
 			Author oldAuthor = optionalOldAuthor.get();
 			Author newAuthor = optionalNewAuthor.get();
 			BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
-//			return new AuthorStream(Stream.of(oldAuthor));
 			return new AuthorStream(List.of(oldAuthor));
 		}
-//		return new AuthorStream(Stream.empty());
 		return new AuthorStream(List.of());
 	}
 }
