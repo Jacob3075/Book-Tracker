@@ -6,7 +6,7 @@ POST http://localhost:8080/api.book-store/books/
 Content-Type: application/json
 
 {
-  "name": "Title26",
+  "name": "Title",
   "description": "Description",
   "authors": [
     {
@@ -17,21 +17,15 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:8080/api.book-store/books/25
+PUT http://localhost:8080/api.book-store/books/27
 Content-Type: application/json
 
 {
-  "name": "Book 25",
-  "description": "Description 25",
+  "name": "Title 27",
+  "description": "Description 27",
   "authors": [
     {
       "authorName": "New Author"
-    },
-    {
-      "authorName": "New Author 2"
-    },
-    {
-      "authorName": "New Author 3"
     }
   ]
 }

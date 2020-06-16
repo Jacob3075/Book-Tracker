@@ -53,12 +53,25 @@ public class BookService {
 			       .forEach(authorRepository::saveAndFlush);
 
 			List<String> oldAuthorNames =
-					oldBook.getAuthors().stream().map(Author::getAuthorName).collect(Collectors.toList());
+					oldBook.getAuthors()
+					       .stream()
+					       .map(Author::getAuthorName)
+					       .collect(Collectors.toList());
+
+			List<String> newAuthorNames = newBook.getAuthors()
+			                                     .stream()
+			                                     .map(Author::getAuthorName)
+			                                     .collect(Collectors.toList());
+
+			oldBook.getAuthors()
+			       .removeIf(author -> !newAuthorNames.contains(author.getAuthorName()));
 
 			newBook.getAuthors()
 			       .stream()
 			       .filter(author -> !oldAuthorNames.contains(author.getAuthorName()))
-			       .forEach(author -> oldBook.getAuthors().add(author));
+			       .map(Author::getAuthorName)
+			       .forEach(authorName -> oldBook.getAuthors()
+			                                     .add(authorRepository.findAuthorByAuthorName(authorName).get()));
 
 			bookRepository.saveAndFlush(oldBook);
 
