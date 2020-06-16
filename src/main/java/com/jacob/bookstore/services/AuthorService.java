@@ -2,7 +2,6 @@ package com.jacob.bookstore.services;
 
 import com.jacob.bookstore.models.Author;
 import com.jacob.bookstore.repositories.AuthorRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,28 +35,15 @@ public class AuthorService {
 	}
 
 	public boolean updateAuthor(Long id, Author newAuthor) {
-		Optional<Author> optionalAuthor = this.findById(id);
-		if (optionalAuthor.isPresent()) {
-			System.out.println("newAuthor = " + newAuthor);
-			Author oldAuthor = optionalAuthor.get();
-			BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
-			authorRepository.saveAndFlush(oldAuthor);
-			return true;
-		} else {
-			return false;
-		}
+		return Author.stream(List.of(newAuthor))
+		             .updateAuthor(id, authorRepository)
+		             .saveAuthor(authorRepository);
 	}
 
 	public boolean addNewAuthor(Author author) {
-		if (this.isNewAuthor(author)) {
-			authorRepository.saveAndFlush(author);
-			return true;
-		} else {
-			return false;
-		}
-	}
+		return Author.stream(List.of(author))
+		             .ifNewAuthor(authorRepository)
+		             .saveAuthor(authorRepository);
 
-	private boolean isNewAuthor(Author author) {
-		return authorRepository.findAuthorsByAuthorName(author.getAuthorName()).isEmpty();
 	}
 }

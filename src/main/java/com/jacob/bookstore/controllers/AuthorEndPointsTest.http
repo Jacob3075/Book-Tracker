@@ -12,15 +12,15 @@ Content-Type: application/json
 
 ###
 
-PUT http://localhost:8080/api.book-store/authors/33
+PUT http://localhost:8080/api.book-store/authors/41
 Content-Type: application/json
 
 {
-  "authorName": "Test Author 1"
+  "authorName": "Test Author 2"
 }
 
 ###
 
-DELETE http://localhost:8080/api.book-store/authors/34
+DELETE http://localhost:8080/api.book-store/authors/41
 
 ###

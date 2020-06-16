@@ -2,6 +2,7 @@ package com.jacob.bookstore.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jacob.bookstore.utils.streams.AuthorStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,4 +33,10 @@ public class Author {
 	private List<Book> books = new ArrayList<>();
 //	@JsonIgnoreProperties({"authors", "categories"})
 //	private Set<Book> books = new HashSet<>();
+
+
+	public static AuthorStream stream(List<Author> authors) {
+//		return new AuthorStream(authors.stream());
+		return new AuthorStream(authors);
+	}
 }

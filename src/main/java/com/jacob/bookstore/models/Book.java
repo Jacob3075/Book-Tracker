@@ -1,6 +1,7 @@
 package com.jacob.bookstore.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jacob.bookstore.utils.streams.BookStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -47,4 +48,9 @@ public class Book {
 //	private Set<Category> categories = new HashSet<>();
 
 //	TODO: USE SETS INSTEAD OF LISTS (FIX INFINITE RECURSION WHEN USING SETS)
+
+
+	public static BookStream stream(List<Book> books) {
+		return new BookStream(books);
+	}
 }

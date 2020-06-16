@@ -6,26 +6,32 @@ POST http://localhost:8080/api.book-store/books/
 Content-Type: application/json
 
 {
-  "name": "Title 27",
+  "name": "Title 44",
   "description": "Description",
   "authors": [
     {
       "authorName": "New Author"
+    },
+    {
+      "authorName": "Test Author 3"
     }
   ]
 }
 
 ###
 
-PUT http://localhost:8080/api.book-store/books/27
+PUT http://localhost:8080/api.book-store/books/44
 Content-Type: application/json
 
 {
-  "name": "Title 27",
-  "description": "Description 27",
+  "name": "Title 44",
+  "description": "Description",
   "authors": [
     {
       "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
     }
   ]
 }
@@ -37,6 +43,6 @@ Accept: application/json
 
 ###
 
-DELETE http://localhost:8080/api.book-store/books/26
+DELETE http://localhost:8080/api.book-store/books/33
 
 ###
