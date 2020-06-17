@@ -1,7 +1,7 @@
-package com.jacob.bookstore.controllers;
+package com.jacob.booktracker.controllers;
 
-import com.jacob.bookstore.models.Book;
-import com.jacob.bookstore.services.BookService;
+import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.services.BookService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;

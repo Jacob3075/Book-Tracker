@@ -1,6 +1,6 @@
-package com.jacob.bookstore.repositories;
+package com.jacob.booktracker.repositories;
 
-import com.jacob.bookstore.models.Book;
+import com.jacob.booktracker.models.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

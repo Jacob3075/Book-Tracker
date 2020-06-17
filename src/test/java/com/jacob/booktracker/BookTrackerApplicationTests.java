@@ -1,10 +1,10 @@
-package com.jacob.bookstore;
+package com.jacob.booktracker;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class BookStoreApplicationTests {
+class BookTrackerApplicationTests {
 
 	@Test
 	void contextLoads() {

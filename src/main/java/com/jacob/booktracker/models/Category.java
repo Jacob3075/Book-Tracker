@@ -1,8 +1,8 @@
-package com.jacob.bookstore.models;
+package com.jacob.booktracker.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.jacob.bookstore.utils.streams.CategoryStream;
+import com.jacob.booktracker.utils.streams.CategoryStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

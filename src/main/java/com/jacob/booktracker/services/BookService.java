@@ -1,9 +1,9 @@
-package com.jacob.bookstore.services;
+package com.jacob.booktracker.services;
 
-import com.jacob.bookstore.models.Book;
-import com.jacob.bookstore.repositories.AuthorRepository;
-import com.jacob.bookstore.repositories.BookRepository;
-import com.jacob.bookstore.repositories.CategoryRepository;
+import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.repositories.AuthorRepository;
+import com.jacob.booktracker.repositories.BookRepository;
+import com.jacob.booktracker.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;

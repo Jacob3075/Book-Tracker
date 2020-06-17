@@ -1,11 +1,11 @@
-package com.jacob.bookstore.utils.streams;
+package com.jacob.booktracker.utils.streams;
 
-import com.jacob.bookstore.models.Author;
-import com.jacob.bookstore.models.Book;
-import com.jacob.bookstore.models.Category;
-import com.jacob.bookstore.repositories.AuthorRepository;
-import com.jacob.bookstore.repositories.BookRepository;
-import com.jacob.bookstore.repositories.CategoryRepository;
+import com.jacob.booktracker.models.Author;
+import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.models.Category;
+import com.jacob.booktracker.repositories.AuthorRepository;
+import com.jacob.booktracker.repositories.BookRepository;
+import com.jacob.booktracker.repositories.CategoryRepository;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;

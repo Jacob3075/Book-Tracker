@@ -1,7 +1,7 @@
-package com.jacob.bookstore.controllers;
+package com.jacob.booktracker.controllers;
 
-import com.jacob.bookstore.models.Category;
-import com.jacob.bookstore.services.CategoryService;
+import com.jacob.booktracker.models.Category;
+import com.jacob.booktracker.services.CategoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
