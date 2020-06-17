@@ -3,6 +3,7 @@ package com.jacob.bookstore.services;
 import com.jacob.bookstore.models.Book;
 import com.jacob.bookstore.repositories.AuthorRepository;
 import com.jacob.bookstore.repositories.BookRepository;
+import com.jacob.bookstore.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,12 +12,15 @@ import java.util.Optional;
 @Service
 public class BookService {
 
-	private final BookRepository   bookRepository;
-	private final AuthorRepository authorRepository;
+	private final BookRepository     bookRepository;
+	private final AuthorRepository   authorRepository;
+	private final CategoryRepository categoryRepository;
 
-	public BookService(BookRepository bookRepository, AuthorRepository authorRepository) {
+	public BookService(BookRepository bookRepository, AuthorRepository authorRepository,
+	                   CategoryRepository categoryRepository) {
 		this.bookRepository = bookRepository;
 		this.authorRepository = authorRepository;
+		this.categoryRepository = categoryRepository;
 	}
 
 	public List<Book> findAll() {
@@ -40,11 +44,12 @@ public class BookService {
 		return Book.stream(List.of(newBook))
 		           .ifNotNewBook(bookRepository)
 		           .addNewAuthorsFromBook(authorRepository)
+		           .addNewCategoriesFromBook(categoryRepository)
 		           .updateBook(
 				           id,
-				           newBook,
 				           bookRepository,
-				           authorRepository
+				           authorRepository,
+				           categoryRepository
 		           )
 		           .saveBook(bookRepository);
 	}
@@ -53,7 +58,9 @@ public class BookService {
 		return Book.stream(List.of(book))
 		           .ifNewBook(bookRepository)
 		           .addNewAuthorsFromBook(authorRepository)
+		           .addNewCategoriesFromBook(categoryRepository)
 		           .updateAuthors(authorRepository)
+		           .updateCategories(categoryRepository)
 		           .saveBook(bookRepository);
 	}
 }

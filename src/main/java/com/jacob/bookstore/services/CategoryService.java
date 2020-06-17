@@ -33,7 +33,14 @@ public class CategoryService {
 		return categoryRepository.findById(id);
 	}
 
-	public void saveAndFlush(Category category) {
+	public boolean addNewCategory(Category category) {
 		categoryRepository.saveAndFlush(category);
+		return true;
+	}
+
+	public boolean updateCategory(Long id, Category newCategory) {
+		return Category.stream(List.of(newCategory))
+		               .updateCategory(id, categoryRepository)
+		               .saveCategory(categoryRepository);
 	}
 }

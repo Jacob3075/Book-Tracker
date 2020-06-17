@@ -2,6 +2,7 @@ package com.jacob.bookstore.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.jacob.bookstore.utils.streams.CategoryStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -32,4 +33,8 @@ public class Category {
 	private List<Book> books = new ArrayList<>();
 //	@JsonIgnoreProperties({"authors", "categories"})
 //	private Set<Book> books = new HashSet<>();
+
+	public static CategoryStream stream(List<Category> categories) {
+		return new CategoryStream(categories);
+	}
 }

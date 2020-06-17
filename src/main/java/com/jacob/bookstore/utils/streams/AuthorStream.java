@@ -38,7 +38,7 @@ public class AuthorStream implements ForwardingStream<Author> {
 	}
 
 	private boolean isNewAuthor(Author author, AuthorRepository authorRepository) {
-		return authorRepository.findAuthorsByAuthorName(author.getAuthorName()).isEmpty();
+		return authorRepository.findAuthorByAuthorName(author.getAuthorName()).isEmpty();
 	}
 
 	public AuthorStream getNewAuthors(AuthorRepository authorRepository) {
@@ -65,11 +65,11 @@ public class AuthorStream implements ForwardingStream<Author> {
 		           .collect(Collectors.toList());
 	}
 
-	public void addAuthorsTo(Book book, AuthorRepository repository) {
+	public void addAuthorsTo(Book book, AuthorRepository authorRepository) {
 		this.getStream()
 		    .map(Author::getAuthorName)
-		    .forEach(authorName -> repository.findAuthorByAuthorName(authorName)
-		                                     .ifPresent(author -> book.getAuthors().add(author))
+		    .forEach(authorName -> authorRepository.findAuthorByAuthorName(authorName)
+		                                           .ifPresent(author -> book.getAuthors().add(author))
 		    );
 	}
 

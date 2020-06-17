@@ -35,29 +35,35 @@ public class AuthorController {
 	}
 
 	@PostMapping(value = "/")
-	public void addNewAuthor(@RequestBody Author author, HttpServletResponse response) {
+	public String addNewAuthor(@RequestBody Author author, HttpServletResponse response) {
 		if (authorService.addNewAuthor(author)) {
 			response.setStatus(HttpServletResponse.SC_CREATED);
+			return "CREATED";
 		} else {
 			response.setStatus(HttpServletResponse.SC_CONFLICT);
+			return "ALREADY EXISTS";
 		}
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public void deleteAuthor(@PathVariable Long id, HttpServletResponse response) {
+	public String deleteAuthor(@PathVariable Long id, HttpServletResponse response) {
 		if (authorService.deleteById(id)) {
 			response.setStatus(HttpServletResponse.SC_OK);
+			return "DELETED";
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 
 	@PutMapping(value = "/{id}")
-	public void updateAuthor(@PathVariable Long id, @RequestBody Author newAuthor, HttpServletResponse response) {
+	public String updateAuthor(@PathVariable Long id, @RequestBody Author newAuthor, HttpServletResponse response) {
 		if (authorService.updateAuthor(id, newAuthor)) {
 			response.setStatus(HttpServletResponse.SC_OK);
+			return "UPDATED";
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 }

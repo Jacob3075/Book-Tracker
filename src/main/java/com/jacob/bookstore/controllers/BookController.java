@@ -31,28 +31,32 @@ public class BookController {
 	@PostMapping(value = "/")
 	public String addNewBook(@RequestBody Book book) {
 		if (bookService.addNewBook(book)) {
-			return "Created";
+			return "CREATED";
 		} else {
-			return "Already exists";
+			return "ALREADY EXISTS";
 		}
 	}
 
 	@DeleteMapping(value = "/{id}")
-	public void deleteBook(@PathVariable Long id, HttpServletResponse response) {
+	public String deleteBook(@PathVariable Long id, HttpServletResponse response) {
 		if (bookService.deleteById(id)) {
 			response.setStatus(HttpServletResponse.SC_OK);
+			return "DELETED";
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 
 	}
 
 	@PutMapping(value = "/{id}")
-	public void updateBook(@PathVariable Long id, @RequestBody Book book, HttpServletResponse response) {
+	public String updateBook(@PathVariable Long id, @RequestBody Book book, HttpServletResponse response) {
 		if (bookService.updateBook(id, book)) {
 			response.setStatus(HttpServletResponse.SC_OK);
+			return "UPDATED";
 		} else {
 			response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 }

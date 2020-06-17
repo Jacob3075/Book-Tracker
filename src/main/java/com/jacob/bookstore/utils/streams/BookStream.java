@@ -2,8 +2,10 @@ package com.jacob.bookstore.utils.streams;
 
 import com.jacob.bookstore.models.Author;
 import com.jacob.bookstore.models.Book;
+import com.jacob.bookstore.models.Category;
 import com.jacob.bookstore.repositories.AuthorRepository;
 import com.jacob.bookstore.repositories.BookRepository;
+import com.jacob.bookstore.repositories.CategoryRepository;
 import org.springframework.beans.BeanUtils;
 
 import java.util.List;
@@ -75,7 +77,7 @@ public class BookStream implements ForwardingStream<Book> {
 		Author.stream(authors)
 		      .addAuthorsTo(book, authorRepository);
 
-		return new BookStream(books);
+		return new BookStream(this.books);
 
 	}
 
@@ -91,27 +93,58 @@ public class BookStream implements ForwardingStream<Book> {
 
 	public BookStream updateBook(
 			Long targetId,
-			Book sourceBook,
 			BookRepository bookRepository,
-			AuthorRepository authorRepository
-	) {
+			AuthorRepository authorRepository,
+			CategoryRepository categoryRepository) {
+
 		Optional<Book> optionalBook = bookRepository.findById(targetId);
 		if (optionalBook.isEmpty()) return new BookStream(List.of());
 
+		Optional<Book> optionalSourceBook = this.getBook();
+		if (optionalSourceBook.isEmpty()) return new BookStream(List.of());
+
 		Book targetBook = optionalBook.get();
-
+		Book sourceBook = optionalSourceBook.get();
 		BeanUtils.copyProperties(sourceBook, targetBook, "id", "authors");
-
-		sourceBook.getAuthors()
-		          .stream()
-		          .map(Author::getAuthorName)
-		          .forEach(System.out::println);
 
 		Author.stream(targetBook.getAuthors())
 		      .removeAuthorsFrom(targetBook);
 		Author.stream(sourceBook.getAuthors())
 		      .addAuthorsTo(targetBook, authorRepository);
 
+		Category.stream(targetBook.getCategories())
+		        .removeCategoriesFrom(targetBook);
+		Category.stream(sourceBook.getCategories())
+		        .addCategoriesTo(targetBook, categoryRepository);
+
 		return new BookStream(List.of(targetBook));
+	}
+
+	public BookStream addNewCategoriesFromBook(CategoryRepository categoryRepository) {
+		Optional<Book> optionalBook = this.getBook();
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
+
+		Book book = optionalBook.get();
+		Category.stream(book.getCategories())
+		        .getNewCategories(categoryRepository)
+		        .forEach(categoryRepository::saveAndFlush);
+
+		return new BookStream(this.books);
+	}
+
+	public BookStream updateCategories(CategoryRepository categoryRepository) {
+		Optional<Book> optionalBook = this.getBook();
+		if (optionalBook.isEmpty()) return new BookStream(List.of());
+
+		Book           book       = optionalBook.get();
+		List<Category> categories = List.copyOf(book.getCategories());
+
+		Category.stream(categories)
+		        .removeCategoriesFrom(book);
+
+		Category.stream(categories)
+		        .addCategoriesTo(book, categoryRepository);
+
+		return new BookStream(this.books);
 	}
 }
