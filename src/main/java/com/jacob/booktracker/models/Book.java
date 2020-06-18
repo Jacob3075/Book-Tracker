@@ -27,6 +27,12 @@ public class Book {
 	@NotEmpty
 	private String description;
 
+	private int pages;
+	private int chapters;
+
+	@Column(name = "last_read_chapter")
+	private int lastReadChapter;
+
 	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
 	@JoinTable(
 			name = "book_author",

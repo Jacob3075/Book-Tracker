@@ -63,4 +63,13 @@ public class BookService {
 		           .updateCategories(categoryRepository)
 		           .saveBook(bookRepository);
 	}
+
+	public boolean updateChapter(Long id, int newChapter) {
+		Optional<Book> optionalBook = bookRepository.findById(id);
+		if (optionalBook.isEmpty()) return false;
+		Book book = optionalBook.get();
+		book.setLastReadChapter(newChapter);
+		bookRepository.saveAndFlush(book);
+		return true;
+	}
 }
