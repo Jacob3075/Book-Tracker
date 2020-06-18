@@ -15,6 +15,11 @@ Content-Type: application/json
     {
       "authorName": "Test Author 3"
     }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    }
   ]
 }
 
@@ -26,12 +31,23 @@ Content-Type: application/json
 {
   "name": "Title 44",
   "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
   "authors": [
     {
       "authorName": "New Author"
     },
     {
       "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    },
+    {
+      "categoryName": "Text Book 3"
     }
   ]
 }
@@ -44,5 +60,9 @@ Accept: application/json
 ###
 
 DELETE http://localhost:8080/api.book-store/books/33
+
+###
+
+POST http://localhost:8080/api.book-store/books/44/last-read-chapter=2
 
 ###

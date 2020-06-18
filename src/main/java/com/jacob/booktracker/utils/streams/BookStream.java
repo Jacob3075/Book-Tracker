@@ -105,7 +105,7 @@ public class BookStream implements ForwardingStream<Book> {
 
 		Book targetBook = optionalBook.get();
 		Book sourceBook = optionalSourceBook.get();
-		BeanUtils.copyProperties(sourceBook, targetBook, "id", "authors");
+		BeanUtils.copyProperties(sourceBook, targetBook, "id", "authors", "categories");
 
 		Author.stream(targetBook.getAuthors())
 		      .removeAuthorsFrom(targetBook);

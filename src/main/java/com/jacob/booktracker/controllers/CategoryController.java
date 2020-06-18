@@ -10,7 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
-@RestController(value = "/api.book-store/categories/")
+@RestController
+@RequestMapping(value = "/api.book-store/categories/")
 public class CategoryController {
 	private final CategoryService categoryService;
 

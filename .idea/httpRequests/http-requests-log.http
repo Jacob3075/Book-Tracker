@@ -1,0 +1,466 @@
+GET http://localhost:8080/api.book-store/categories/
+
+<> 2020-06-18T115359.200.json
+
+###
+
+DELETE http://localhost:8080/api.book-store/categories/7
+
+<> 2020-06-18T115357.200.txt
+
+###
+
+DELETE http://localhost:8080/api.book-store/categories/6
+
+<> 2020-06-18T115353.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/categories/
+
+<> 2020-06-18T115345.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/8
+
+<> 2020-06-18T115331.500.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/7
+
+<> 2020-06-18T115326.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/6
+
+<> 2020-06-18T115323.200.json
+
+###
+
+DELETE http://localhost:8080/api.book-store/categories/5
+
+<> 2020-06-18T115319.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/categories/5
+
+<> 2020-06-18T115315.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T115244.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    },
+    {
+      "categoryName": "Text Book 3"
+    }
+  ]
+}
+
+<> 2020-06-18T115240.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T115226.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book 1"
+    },
+    {
+      "categoryName": "Text Book 3"
+    }
+  ]
+}
+
+<> 2020-06-18T115223.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T115151.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book 2"
+    }
+  ]
+}
+
+<> 2020-06-18T115138.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T114948.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T114922.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    }
+  ]
+}
+
+<> 2020-06-18T114916.200.txt
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    }
+  ]
+}
+
+<> 2020-06-18T114739.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T114557.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T113958.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    }
+  ]
+}
+
+<> 2020-06-18T113955.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T113922.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/
+
+<> 2020-06-18T113832.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T113419.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/1
+
+<> 2020-06-18T113251.404.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/
+
+<> 2020-06-18T113219.500.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/1
+
+<> 2020-06-18T113122.404.json
+
+###
+
+GET http://localhost:8080/api.book-store/categories/
+
+<> 2020-06-18T112624.500.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T112223.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ],
+  "categories": [
+    {
+      "categoryName": "Text Book"
+    }
+  ]
+}
+
+<> 2020-06-18T112219.200.txt
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ]
+}
+
+<> 2020-06-18T112202.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T112142.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ]
+}
+
+<> 2020-06-18T112139.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T112135.200.json
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T112035.200.json
+
+###
+
+PUT http://localhost:8080/api.book-store/books/44
+Content-Type: application/json
+
+{
+  "name": "Title 44",
+  "description": "Description",
+  "pages": 300,
+  "chapters": 20,
+  "lastReadChapter": 2,
+  "authors": [
+    {
+      "authorName": "New Author"
+    },
+    {
+      "authorName": "New Author 2"
+    }
+  ]
+}
+
+<> 2020-06-18T112032.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T111943.200.json
+
+###
+
+POST http://localhost:8080/api.book-store/books/44/last-read-chapter=2
+
+<> 2020-06-18T111918.200.txt
+
+###
+
+GET http://localhost:8080/api.book-store/books/
+Accept: application/json
+
+<> 2020-06-18T111546.200.json
+
+###
+

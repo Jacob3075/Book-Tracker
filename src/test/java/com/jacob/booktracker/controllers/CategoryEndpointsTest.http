@@ -1,0 +1,3 @@
+GET http://localhost:8080/api.book-store/categories/
+###
+DELETE http://localhost:8080/api.book-store/categories/7
