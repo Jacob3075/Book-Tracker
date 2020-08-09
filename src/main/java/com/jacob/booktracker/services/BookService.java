@@ -1,13 +1,16 @@
 package com.jacob.booktracker.services;
 
+import com.jacob.booktracker.dtos.response.BookDTO;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.repositories.CategoryRepository;
+import com.jacob.booktracker.utils.CommonUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class BookService {
@@ -16,28 +19,33 @@ public class BookService {
 	private final AuthorRepository   authorRepository;
 	private final CategoryRepository categoryRepository;
 
-	public BookService(BookRepository bookRepository, AuthorRepository authorRepository,
-	                   CategoryRepository categoryRepository) {
+	public BookService(
+			BookRepository bookRepository, AuthorRepository authorRepository,
+			CategoryRepository categoryRepository) {
 		this.bookRepository = bookRepository;
 		this.authorRepository = authorRepository;
 		this.categoryRepository = categoryRepository;
 	}
 
-	public List<Book> findAll() {
-		return bookRepository.findAll();
+	public List<BookDTO> findAll() {
+		return bookRepository.findAll()
+		                     .stream()
+		                     .map(CommonUtils::convertToBookDTO)
+		                     .collect(Collectors.toList());
 	}
 
 	public boolean deleteById(Long id) {
-		Optional<Book> optionalBook = this.findById(id);
-		if (optionalBook.isPresent()) {
+		Optional<Book> byId = bookRepository.findById(id);
+		if (byId.isPresent()) {
 			bookRepository.deleteById(id);
 			return true;
+		} else {
+			return false;
 		}
-		return false;
 	}
 
-	public Optional<Book> findById(Long id) {
-		return bookRepository.findById(id);
+	public Optional<BookDTO> findById(Long id) {
+		return CommonUtils.convertToBookDTO(bookRepository.findById(id));
 	}
 
 	public boolean updateBook(Long id, Book newBook) {

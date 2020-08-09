@@ -1,15 +1,15 @@
 package com.jacob.booktracker.controllers;
 
+import com.jacob.booktracker.dtos.response.BookDTO;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.services.BookService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
 
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
 import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 @RestController
@@ -23,21 +23,30 @@ public class BookController {
 	}
 
 	@GetMapping(value = "/")
-	public List<Book> getBooks() {
+	public List<BookDTO> getBooks() {
 		return bookService.findAll();
 	}
 
 	@GetMapping(value = "/{id}")
-	public Optional<Book> getBookById(@PathVariable Long id) {
-		return bookService.findById(id);
+	public BookDTO getBookById(@PathVariable Long id, HttpServletResponse response) {
+		Optional<BookDTO> optionalBookDTO = bookService.findById(id);
+		if (optionalBookDTO.isPresent()) {
+			response.setStatus(SC_OK);
+			return optionalBookDTO.get();
+		} else {
+			response.setStatus(SC_NOT_FOUND);
+			return null;
+		}
 	}
 
 	@PostMapping(value = "/")
-	public String addNewBook(@RequestBody Book book) {
+	public String addNewBook(@RequestBody Book book, HttpServletResponse response) {
 		if (bookService.addNewBook(book)) {
+			response.setStatus(SC_OK);
 			return "CREATED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.CONFLICT);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 
@@ -47,7 +56,8 @@ public class BookController {
 			response.setStatus(SC_OK);
 			return "DELETED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 
 	}
@@ -58,18 +68,21 @@ public class BookController {
 			response.setStatus(SC_OK);
 			return "UPDATED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 
 	@PostMapping(value = "/{id}/last-read-chapter={newChapter}")
-	public String updateLastReadChapter(@PathVariable Long id, @PathVariable int newChapter,
-	                                    HttpServletResponse response) {
+	public String updateLastReadChapter(
+			@PathVariable Long id, @PathVariable int newChapter,
+			HttpServletResponse response) {
 		if (bookService.updateChapter(id, newChapter)) {
 			response.setStatus(SC_OK);
-			return "CREATED";
+			return "UPDATED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 }
