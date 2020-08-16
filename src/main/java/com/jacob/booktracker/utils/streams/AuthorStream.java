@@ -3,7 +3,6 @@ package com.jacob.booktracker.utils.streams;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.repositories.AuthorRepository;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +19,10 @@ public class AuthorStream implements ForwardingStream<Author> {
 	public AuthorStream(List<Author> authors) {
 		this.authors = authors;
 	}
+
+//	public AuthorStream(Mono<Author> authorMono) {
+//		authorMono.sub
+//	}
 
 	public AuthorStream getOldAuthors(AuthorRepository authorRepository) {
 		return new AuthorStream(
@@ -98,21 +101,31 @@ public class AuthorStream implements ForwardingStream<Author> {
 	public boolean saveAuthor(AuthorRepository authorRepository) {
 		Optional<Author> optionalAuthor = this.getAuthor();
 		if (optionalAuthor.isPresent()) {
-			authorRepository.saveAndFlush(optionalAuthor.get());
+			authorRepository.save(optionalAuthor.get());
 			return true;
 		}
 		return false;
 	}
 
-	public AuthorStream updateAuthor(Long id, AuthorRepository authorRepository) {
-		Optional<Author> optionalOldAuthor = authorRepository.findById(id);
-		Optional<Author> optionalNewAuthor = this.getAuthor();
-		if (optionalOldAuthor.isPresent() && optionalNewAuthor.isPresent()) {
-			Author oldAuthor = optionalOldAuthor.get();
-			Author newAuthor = optionalNewAuthor.get();
-			BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
-			return new AuthorStream(List.of(oldAuthor));
-		}
+	public AuthorStream updateAuthor(String id, AuthorRepository authorRepository) {
+//		return new AuthorStream(authorRepository.findById(id)
+//		                                        .doOnNext(oldAuthor -> {
+//			                                        Optional<Author> optionalNewAuthor = this.getAuthor();
+//			                                        if (optionalNewAuthor.isPresent()) {
+//				                                        Author newAuthor = optionalNewAuthor.get();
+//				                                        BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
+//			                                        }
+//		                                        })
+//		);
+
+//		Optional<Author> optionalOldAuthor = authorRepository.findById(id);
+//		Optional<Author> optionalNewAuthor = this.getAuthor();
+//		if (optionalOldAuthor.isPresent() && optionalNewAuthor.isPresent()) {
+//			Author oldAuthor = optionalOldAuthor.get();
+//			Author newAuthor = optionalNewAuthor.get();
+//			BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
+//			return new AuthorStream(List.of(oldAuthor));
+//		}
 		return new AuthorStream(List.of());
 	}
 }

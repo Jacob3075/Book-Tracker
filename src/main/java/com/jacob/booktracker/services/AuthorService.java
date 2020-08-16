@@ -3,9 +3,10 @@ package com.jacob.booktracker.services;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.repositories.AuthorRepository;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class AuthorService {
@@ -16,25 +17,27 @@ public class AuthorService {
 		this.authorRepository = authorRepository;
 	}
 
-	public List<Author> findAll() {
+	public Flux<Author> findAll() {
 		return authorRepository.findAll();
 	}
 
-	public boolean deleteById(Long id) {
-		Optional<Author> optionalAuthor = this.findById(id);
-		if (optionalAuthor.isPresent()) {
-			authorRepository.deleteById(id);
-			return true;
-		} else {
-			return false;
-		}
+	public void deleteById(String id) {
+		this.findById(id)
+		    .subscribe(author -> authorRepository.deleteById(id));
+//		if (optionalAuthor.isPresent()) {
+//			authorRepository.deleteById(id);
+//			return true;
+//		} else {
+//			return false;
+//		}
+//		return true;
 	}
 
-	public Optional<Author> findById(Long id) {
+	public Mono<Author> findById(String id) {
 		return authorRepository.findById(id);
 	}
 
-	public boolean updateAuthor(Long id, Author newAuthor) {
+	public boolean updateAuthor(String id, Author newAuthor) {
 		return Author.stream(List.of(newAuthor))
 		             .updateAuthor(id, authorRepository)
 		             .saveAuthor(authorRepository);

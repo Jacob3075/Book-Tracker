@@ -3,7 +3,6 @@ package com.jacob.booktracker.utils.streams;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.repositories.CategoryRepository;
-import org.springframework.beans.BeanUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,16 +19,16 @@ public class CategoryStream implements ForwardingStream<Category> {
 		this.categories = categories;
 	}
 
-	public CategoryStream updateCategory(Long id, CategoryRepository repository) {
-		Optional<Category> optionalOldCategory = repository.findById(id);
-		Optional<Category> optionalNewCategory = this.getCategory();
-		if (optionalNewCategory.isEmpty() || optionalOldCategory.isEmpty()) return new CategoryStream(List.of());
-
-		Category newCategory = optionalNewCategory.get();
-		Category oldCategory = optionalOldCategory.get();
-
-		BeanUtils.copyProperties(newCategory, oldCategory, "id");
-		return new CategoryStream(List.of(oldCategory));
+	public CategoryStream updateCategory(String id, CategoryRepository repository) {
+//		Optional<Category> optionalOldCategory = repository.findById(id);
+//		Optional<Category> optionalNewCategory = this.getCategory();
+//		if (optionalNewCategory.isEmpty() || optionalOldCategory.isEmpty()) return new CategoryStream(List.of());
+//
+//		Category newCategory = optionalNewCategory.get();
+//		Category oldCategory = optionalOldCategory.get();
+//
+//		BeanUtils.copyProperties(newCategory, oldCategory, "id");
+		return new CategoryStream(List.of(/*oldCategory*/));
 	}
 
 	private Optional<Category> getCategory() {
@@ -46,7 +45,7 @@ public class CategoryStream implements ForwardingStream<Category> {
 		Optional<Category> optionalCategory = this.getCategory();
 		if (optionalCategory.isEmpty()) return false;
 
-		categoryRepository.saveAndFlush(optionalCategory.get());
+		categoryRepository.save(optionalCategory.get());
 		return true;
 	}
 

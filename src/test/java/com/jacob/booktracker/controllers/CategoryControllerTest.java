@@ -41,11 +41,11 @@ class CategoryControllerTest {
 		categoryList.clear();
 
 		categoryList.addAll(Arrays.asList(
-				new CategoryDTO(1L, "Category 1"),
-				new CategoryDTO(2L, "Category 2"),
-				new CategoryDTO(3L, "Category 3"),
-				new CategoryDTO(4L, "Category 4"),
-				new CategoryDTO(5L, "Category 4")
+				new CategoryDTO("1", "Category 1"),
+				new CategoryDTO("2L", "Category 2"),
+				new CategoryDTO("3L", "Category 3"),
+				new CategoryDTO("4L", "Category 4"),
+				new CategoryDTO("5L", "Category 4")
 		));
 
 
@@ -65,13 +65,13 @@ class CategoryControllerTest {
 
 	@Test
 	void findById() throws Exception {
-		given(categoryService.findById(1L)).willReturn(Optional.ofNullable(categoryList.get(0)));
-		given(categoryService.findById(2L)).willReturn(Optional.empty());
+		given(categoryService.findById("1L")).willReturn(Optional.ofNullable(categoryList.get(0)));
+		given(categoryService.findById("2L")).willReturn(Optional.empty());
 
 		mockMvc.perform(get(urlTemplate + "1"))
 		       .andExpect(status().isOk())
 		       .andExpect(jsonPath("$.categoryName", is(categoryList.get(0).getCategoryName())))
-		       .andExpect(jsonPath("$.id", is(categoryList.get(0).getId().intValue())));
+		       .andExpect(jsonPath("$.id", is(categoryList.get(0).getId())));
 
 		mockMvc.perform(get(urlTemplate + "2"))
 		       .andExpect(status().isNotFound())
@@ -101,8 +101,8 @@ class CategoryControllerTest {
 	@Test
 	void deleteCategory() throws Exception {
 
-		given(categoryService.deleteById(1L)).willReturn(true);
-		given(categoryService.deleteById(2L)).willReturn(false);
+		given(categoryService.deleteById("1L")).willReturn(true);
+		given(categoryService.deleteById("2L")).willReturn(false);
 
 		mockMvc.perform(delete(urlTemplate + "1"))
 		       .andExpect(status().isOk())

@@ -44,13 +44,13 @@ class BookControllerTest {
 		categoryList.clear();
 		bookList.clear();
 
-		authorList.add(new AuthorDTO(1L, "Name"));
+		authorList.add(new AuthorDTO("1L", "Name"));
 
-		categoryList.add(new CategoryDTO(1L, "Category"));
+		categoryList.add(new CategoryDTO("1L", "Category"));
 
 		bookList.addAll(Arrays.asList(
-				new BookDTO(1L, "Book1", authorList, categoryList, 300, 28, 18),
-				new BookDTO(2L, "Book2", authorList, categoryList, 200, 20, 4)
+				new BookDTO("1L", "Book1", authorList, categoryList, 300, 28, 18),
+				new BookDTO("2L", "Book2", authorList, categoryList, 200, 20, 4)
 		));
 	}
 
@@ -63,27 +63,27 @@ class BookControllerTest {
 		       .andExpect(jsonPath("$.size()", is(bookList.size())))
 		       .andExpect(jsonPath("$[0].name", is(bookList.get(0).getName())))
 		       .andExpect(jsonPath("$[0].authors[0].authorName", is(authorList.get(0).getAuthorName())))
-		       .andExpect(jsonPath("$[0].authors[0].id", is(authorList.get(0).getId().intValue())));
+		       .andExpect(jsonPath("$[0].authors[0].id", is(authorList.get(0).getId())));
 
 	}
 
 	@Test
 	void getBookById() throws Exception {
-		given(bookService.findById(1L)).willReturn(Optional.ofNullable(bookList.get(0)));
-		given(bookService.findById(2L)).willReturn(Optional.empty());
+		given(bookService.findById("1L")).willReturn(Optional.ofNullable(bookList.get(0)));
+		given(bookService.findById("2L")).willReturn(Optional.empty());
 
 		mockMvc.perform(get(urlTemplate + "1"))
 		       .andExpect(status().isOk())
 		       .andExpect(jsonPath("$.name", is(bookList.get(0).getName())))
-		       .andExpect(jsonPath("$.id", is(bookList.get(0).getId().intValue())))
+		       .andExpect(jsonPath("$.id", is(bookList.get(0).getId())))
 		       .andExpect(jsonPath("$.pages", is(bookList.get(0).getPages())))
 		       .andExpect(jsonPath("$.chapters", is(bookList.get(0).getChapters())))
 		       .andExpect(jsonPath("$.lastReadChapter", is(bookList.get(0).getLastReadChapter())))
 		       .andExpect(jsonPath("$.authors.size()", is(authorList.size())))
-		       .andExpect(jsonPath("$.authors[0].id", is(authorList.get(0).getId().intValue())))
+		       .andExpect(jsonPath("$.authors[0].id", is(authorList.get(0).getId())))
 		       .andExpect(jsonPath("$.authors[0].authorName", is(authorList.get(0).getAuthorName())))
 		       .andExpect(jsonPath("$.categories.size()", is(categoryList.size())))
-		       .andExpect(jsonPath("$.categories[0].id", is(categoryList.get(0).getId().intValue())))
+		       .andExpect(jsonPath("$.categories[0].id", is(categoryList.get(0).getId())))
 		       .andExpect(jsonPath("$.categories[0].categoryName", is(categoryList.get(0).getCategoryName())));
 
 		mockMvc.perform(get(urlTemplate + "2"))
@@ -93,8 +93,8 @@ class BookControllerTest {
 
 	@Test
 	void deleteBookById() throws Exception {
-		given(bookService.deleteById(1L)).willReturn(true);
-		given(bookService.deleteById(2L)).willReturn(false);
+		given(bookService.deleteById("1L")).willReturn(true);
+		given(bookService.deleteById("2L")).willReturn(false);
 
 		mockMvc.perform(delete(urlTemplate + "1"))
 		       .andExpect(status().isOk())
@@ -111,8 +111,8 @@ class BookControllerTest {
 
 		Book book = CommonUtils.convertFromBookDTO(bookList.get(1));
 
-		given(bookService.updateBook(1L, book)).willReturn(true);
-		given(bookService.updateBook(2L, book)).willReturn(false);
+		given(bookService.updateBook("1L", book)).willReturn(true);
+		given(bookService.updateBook("2L", book)).willReturn(false);
 
 		mockMvc.perform(put(urlTemplate + "1").contentType(MediaType.APPLICATION_JSON)
 		                                      .content(new Gson().toJson(book)))
@@ -147,8 +147,8 @@ class BookControllerTest {
 	@Test
 	void updateLastReadChapter() throws Exception {
 
-		given(bookService.updateChapter(1L, 10)).willReturn(true);
-		given(bookService.updateChapter(2L, 10)).willReturn(false);
+		given(bookService.updateChapter("1L", 10)).willReturn(true);
+		given(bookService.updateChapter("qqqqq", 10)).willReturn(false);
 
 		mockMvc.perform(post(urlTemplate + "1/last-read-chapter=10"))
 		       .andExpect(status().isOk())
