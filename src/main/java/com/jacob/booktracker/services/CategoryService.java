@@ -1,11 +1,14 @@
 package com.jacob.booktracker.services;
 
+import com.jacob.booktracker.dtos.response.CategoryDTO;
 import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.repositories.CategoryRepository;
+import com.jacob.booktracker.utils.CommonUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CategoryService {
@@ -15,13 +18,16 @@ public class CategoryService {
 		this.categoryRepository = categoryRepository;
 	}
 
-	public List<Category> findAll() {
-		return categoryRepository.findAll();
+	public List<CategoryDTO> findAll() {
+		return categoryRepository.findAll()
+		                         .stream()
+		                         .map(CommonUtils::convertToCategoryDTO)
+		                         .collect(Collectors.toList());
 	}
 
 	public boolean deleteById(Long id) {
-		Optional<Category> optionalCategory = this.findById(id);
-		if (optionalCategory.isPresent()) {
+		Optional<Category> byId = categoryRepository.findById(id);
+		if (byId.isPresent()) {
 			categoryRepository.deleteById(id);
 			return true;
 		} else {
@@ -29,8 +35,8 @@ public class CategoryService {
 		}
 	}
 
-	public Optional<Category> findById(Long id) {
-		return categoryRepository.findById(id);
+	public Optional<CategoryDTO> findById(Long id) {
+		return CommonUtils.convertToCategoryDTO(categoryRepository.findById(id));
 	}
 
 	public boolean addNewCategory(Category category) {

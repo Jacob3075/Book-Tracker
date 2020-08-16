@@ -1,14 +1,16 @@
 package com.jacob.booktracker.controllers;
 
+import com.jacob.booktracker.dtos.response.CategoryDTO;
 import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.services.CategoryService;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.HttpClientErrorException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Optional;
+
+import static javax.servlet.http.HttpServletResponse.SC_NOT_FOUND;
+import static javax.servlet.http.HttpServletResponse.SC_OK;
 
 @RestController
 @RequestMapping(value = "/api.book-store/categories/")
@@ -20,27 +22,28 @@ public class CategoryController {
 	}
 
 	@GetMapping(value = "/")
-	public List<Category> getAllCategories() {
+	public List<CategoryDTO> getAllCategories() {
 		return categoryService.findAll();
 	}
 
 	@GetMapping(value = "/{id}")
-	public Category findById(@PathVariable Long id) {
-		Optional<Category> optionalCategory = categoryService.findById(id);
+	public CategoryDTO findById(@PathVariable Long id, HttpServletResponse response) {
+		Optional<CategoryDTO> optionalCategory = categoryService.findById(id);
 		if (optionalCategory.isPresent()) {
+			response.setStatus(SC_OK);
 			return optionalCategory.get();
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return null;
 		}
 	}
 
 	@PostMapping(value = "/")
-	public String addNewCategory(@RequestBody Category category, HttpServletResponse response) {
+	public String addNewCategory(@RequestBody Category category) {
 		if (categoryService.addNewCategory(category)) {
-			response.setStatus(HttpServletResponse.SC_OK);
 			return "CREATED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 
@@ -50,18 +53,21 @@ public class CategoryController {
 			response.setStatus(HttpServletResponse.SC_OK);
 			return "DELETED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 
 	@PutMapping(value = "/{id}")
-	public String updateCategory(@PathVariable Long id, @RequestBody Category newCategory,
-	                             HttpServletResponse response) {
+	public String updateCategory(
+			@PathVariable Long id, @RequestBody Category newCategory,
+			HttpServletResponse response) {
 		if (categoryService.updateCategory(id, newCategory)) {
 			response.setStatus(HttpServletResponse.SC_OK);
 			return "UPDATED";
 		} else {
-			throw new HttpClientErrorException(HttpStatus.NOT_FOUND);
+			response.setStatus(SC_NOT_FOUND);
+			return "NOT FOUND";
 		}
 	}
 

@@ -52,7 +52,7 @@ public class CommonUtils {
 		categoryDTO.setId(category.getId());
 		categoryDTO.setCategoryName(category.getCategoryName());
 
-		return null;
+		return categoryDTO;
 	}
 
 	public static Book convertFromBookDTO(BookDTO bookDTO) {
@@ -93,5 +93,11 @@ public class CommonUtils {
 		return null;
 	}
 
+	public static Optional<CategoryDTO> convertToCategoryDTO(Optional<Category> optionalCategory) {
+		return optionalCategory.map(CommonUtils::convertToCategoryDTO);
+	}
 
+	public static Optional<AuthorDTO> convertToAuthorDTO(Optional<Author> optionalAuthor) {
+		return optionalAuthor.map(CommonUtils::convertToAuthorDTO);
+	}
 }

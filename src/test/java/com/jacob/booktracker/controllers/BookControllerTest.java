@@ -123,8 +123,6 @@ class BookControllerTest {
 		                                      .content(new Gson().toJson(book)))
 		       .andExpect(status().isNotFound())
 		       .andExpect(jsonPath("$", is("NOT FOUND")));
-
-
 	}
 
 	@Test
