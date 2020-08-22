@@ -3,10 +3,11 @@ package com.jacob.booktracker.services;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.repositories.AuthorRepository;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Flux;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Service
 public class AuthorService {
@@ -17,36 +18,25 @@ public class AuthorService {
 		this.authorRepository = authorRepository;
 	}
 
-	public Flux<Author> findAll() {
-		return authorRepository.findAll();
+	public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+		return ok().body(authorRepository.findAll(), Author.class);
 	}
 
-	public void deleteById(String id) {
-		this.findById(id)
-		    .subscribe(author -> authorRepository.deleteById(id));
-//		if (optionalAuthor.isPresent()) {
-//			authorRepository.deleteById(id);
-//			return true;
-//		} else {
-//			return false;
-//		}
-//		return true;
+	public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+		return ok().body(authorRepository.findById(serverRequest.pathVariable("id")), Author.class);
 	}
 
-	public Mono<Author> findById(String id) {
-		return authorRepository.findById(id);
+	public Mono<ServerResponse> addNewAuthor(ServerRequest serverRequest) {
+		return ok().body(serverRequest.bodyToMono(Author.class)
+		                              .flatMap(authorRepository::save), Author.class);
 	}
 
-	public boolean updateAuthor(String id, Author newAuthor) {
-		return Author.stream(List.of(newAuthor))
-		             .updateAuthor(id, authorRepository)
-		             .saveAuthor(authorRepository);
+	public Mono<ServerResponse> updateAuthor(ServerRequest serverRequest) {
+		return ok().body(serverRequest.bodyToMono(Author.class)
+		                              .flatMap(authorRepository::save), Author.class);
 	}
 
-	public boolean addNewAuthor(Author author) {
-		return Author.stream(List.of(author))
-		             .ifNewAuthor(authorRepository)
-		             .saveAuthor(authorRepository);
-
+	public Mono<ServerResponse> deleteById(ServerRequest serverRequest) {
+		return ok().body(authorRepository.deleteById(serverRequest.pathVariable("id")), Void.class);
 	}
 }
