@@ -18,6 +18,6 @@ public class MongoReactiveApplication extends AbstractReactiveMongoConfiguration
 
 	@Override
 	protected String getDatabaseName() {
-		return "reactive";
+		return "BookTracker";
 	}
 }
