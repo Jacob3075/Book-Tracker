@@ -53,11 +53,11 @@ public class AuthorStream implements ForwardingStream<Author> {
 	}
 
 	public AuthorStream getAuthorsNotIn(Book book) {
-		List<String> authorNames = Author.stream(book.getAuthors())
-		                                 .getAuthorNames();
+//		List<String> authorNames = Author.stream(book.getAuthors())
+//		                                 .getAuthorNames();
 
 		return new AuthorStream(this.getStream()
-		                            .filter(author -> !authorNames.contains(author.getAuthorName()))
+//		                            .filter(author -> !authorNames.contains(author.getAuthorName()))
 		                            .collect(Collectors.toList())
 		);
 	}
