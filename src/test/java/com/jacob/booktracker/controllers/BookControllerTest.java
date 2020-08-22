@@ -1,162 +1,188 @@
 package com.jacob.booktracker.controllers;
 
-import com.google.gson.Gson;
-import com.jacob.booktracker.dtos.response.AuthorDTO;
-import com.jacob.booktracker.dtos.response.BookDTO;
-import com.jacob.booktracker.dtos.response.CategoryDTO;
+import com.jacob.booktracker.config.MongoReactiveApplication;
+import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.services.BookService;
-import com.jacob.booktracker.utils.CommonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.BodyInserters;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
-import static org.hamcrest.CoreMatchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-@WebMvcTest(controllers = BookController.class)
+@WebFluxTest(controllers = BookController.class)
+@ExtendWith(SpringExtension.class)
+@Import({BookService.class, MongoReactiveApplication.class, BookController.class})
 class BookControllerTest {
 
-	private final List<BookDTO>     bookList     = new ArrayList<>();
-	private final List<AuthorDTO>   authorList   = new ArrayList<>();
-	private final List<CategoryDTO> categoryList = new ArrayList<>();
-	private final String            urlTemplate  = "/api.book-store/books/";
-	@Autowired
-	private       MockMvc           mockMvc;
+	private final List<Book>   bookList   = new ArrayList<>();
+	private final List<Author> authorList = new ArrayList<>();
+	//	private final List<Category> categoryList = new ArrayList<>();
+	private final String       baseUrl    = "http://localhost:8080/api.book-store/books/";
+
 	@MockBean
-	private       BookService       bookService;
+	private BookRepository bookRepository;
+
+	@Autowired
+	private WebTestClient webTestClient;
 
 	@BeforeEach
 	void setUp() {
-		authorList.clear();
-		categoryList.clear();
 		bookList.clear();
+		authorList.clear();
+//		categoryList.clear();
 
-		authorList.add(new AuthorDTO("1L", "Name"));
+		Author author1 = new Author();
+		author1.setAuthorName("Author 1");
 
-		categoryList.add(new CategoryDTO("1L", "Category"));
+		Author author2 = new Author();
+		author2.setAuthorName("Author 2");
 
-		bookList.addAll(Arrays.asList(
-				new BookDTO("1L", "Book1", authorList, categoryList, 300, 28, 18),
-				new BookDTO("2L", "Book2", authorList, categoryList, 200, 20, 4)
-		));
+		authorList.add(author1);
+		authorList.add(author2);
+
+		Book book1 = new Book();
+		book1.setId("1");
+		book1.setName("Book 1");
+		book1.setDescription("Description");
+		book1.setPages(300);
+		book1.setChapters(30);
+		book1.setLastReadChapter(5);
+		book1.setAuthors(authorList);
+
+		Book book2 = new Book();
+		book2.setId("2");
+		book2.setName("Book 2");
+		book2.setDescription("Description");
+		book2.setPages(400);
+		book2.setChapters(35);
+		book2.setLastReadChapter(15);
+		book2.setAuthors(authorList);
+
+		bookList.add(book1);
+		bookList.add(book2);
 	}
 
 	@Test
-	void getAllBooks() throws Exception {
-		given(bookService.findAll()).willReturn(bookList);
+	void getAllBooksTest() {
+		given(bookRepository.findAll()).willReturn(Flux.fromIterable(bookList));
+		Book book = bookList.get(0);
 
-		mockMvc.perform(get(urlTemplate))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$.size()", is(bookList.size())))
-		       .andExpect(jsonPath("$[0].name", is(bookList.get(0).getName())))
-		       .andExpect(jsonPath("$[0].authors[0].authorName", is(authorList.get(0).getAuthorName())))
-		       .andExpect(jsonPath("$[0].authors[0].id", is(authorList.get(0).getId())));
+		webTestClient.get()
+		             .uri(baseUrl)
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody()
+		             .jsonPath("$[0].id").isEqualTo(book.getId())
+		             .jsonPath("$[0].name").isEqualTo(book.getName())
+		             .jsonPath("$[0].description").isEqualTo(book.getDescription())
+		             .jsonPath("$[0].pages").isEqualTo(book.getPages())
+		             .jsonPath("$[0].chapters").isEqualTo(book.getChapters())
+		             .jsonPath("$[0].lastReadChapter").isEqualTo(book.getLastReadChapter());
 
+		verify(bookRepository, times(1)).findAll();
 	}
 
 	@Test
-	void getBookById() throws Exception {
-		given(bookService.findById("1L")).willReturn(Optional.ofNullable(bookList.get(0)));
-		given(bookService.findById("2L")).willReturn(Optional.empty());
+	void getBookByIdTest() {
+		Book book = bookList.get(0);
+		given(bookRepository.findById(book.getId())).willReturn(Mono.just(book));
 
-		mockMvc.perform(get(urlTemplate + "1"))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$.name", is(bookList.get(0).getName())))
-		       .andExpect(jsonPath("$.id", is(bookList.get(0).getId())))
-		       .andExpect(jsonPath("$.pages", is(bookList.get(0).getPages())))
-		       .andExpect(jsonPath("$.chapters", is(bookList.get(0).getChapters())))
-		       .andExpect(jsonPath("$.lastReadChapter", is(bookList.get(0).getLastReadChapter())))
-		       .andExpect(jsonPath("$.authors.size()", is(authorList.size())))
-		       .andExpect(jsonPath("$.authors[0].id", is(authorList.get(0).getId())))
-		       .andExpect(jsonPath("$.authors[0].authorName", is(authorList.get(0).getAuthorName())))
-		       .andExpect(jsonPath("$.categories.size()", is(categoryList.size())))
-		       .andExpect(jsonPath("$.categories[0].id", is(categoryList.get(0).getId())))
-		       .andExpect(jsonPath("$.categories[0].categoryName", is(categoryList.get(0).getCategoryName())));
+		webTestClient.get()
+		             .uri(baseUrl + book.getId())
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody()
+		             .jsonPath("$.id").isEqualTo(book.getId())
+		             .jsonPath("$.name").isEqualTo(book.getName())
+		             .jsonPath("$.description").isEqualTo(book.getDescription());
 
-		mockMvc.perform(get(urlTemplate + "2"))
-		       .andExpect(status().isNotFound())
-		       .andExpect(jsonPath("$").doesNotExist());
+		verify(bookRepository, times(1)).findById(book.getId());
 	}
 
 	@Test
-	void deleteBookById() throws Exception {
-		given(bookService.deleteById("1L")).willReturn(true);
-		given(bookService.deleteById("2L")).willReturn(false);
+	void addNewBookTest() {
+		Book book = bookList.get(0);
+		given(bookRepository.save(any())).willReturn(Mono.just(book));
 
-		mockMvc.perform(delete(urlTemplate + "1"))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$", is("DELETED")));
+		webTestClient.post()
+		             .uri(baseUrl)
+		             .contentType(MediaType.APPLICATION_JSON)
+		             .body(BodyInserters.fromValue(book))
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody()
+		             .jsonPath("$.id").isEqualTo(book.getId())
+		             .jsonPath("$.name").isEqualTo(book.getName())
+		             .jsonPath("$.description").isEqualTo(book.getDescription());
 
-		mockMvc.perform(delete(urlTemplate + "2"))
-		       .andExpect(status().isNotFound())
-		       .andExpect(jsonPath("$", is("NOT FOUND")));
-
+		verify(bookRepository, times(1)).save(any());
 	}
 
 	@Test
-	void updateBookById() throws Exception {
+	void updateBookTest() {
+		Book book = bookList.get(0);
+		given(bookRepository.save(any())).willReturn(Mono.just(book));
 
-		Book book = CommonUtils.convertFromBookDTO(bookList.get(1));
+		webTestClient.put()
+		             .uri(baseUrl)
+		             .contentType(MediaType.APPLICATION_JSON)
+		             .body(BodyInserters.fromValue(book))
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody()
+		             .jsonPath("$.id").isEqualTo(book.getId())
+		             .jsonPath("$.name").isEqualTo(book.getName())
+		             .jsonPath("$.description").isEqualTo(book.getDescription());
 
-		given(bookService.updateBook("1L", book)).willReturn(true);
-		given(bookService.updateBook("2L", book)).willReturn(false);
-
-		mockMvc.perform(put(urlTemplate + "1").contentType(MediaType.APPLICATION_JSON)
-		                                      .content(new Gson().toJson(book)))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$", is("UPDATED")));
-
-		mockMvc.perform(put(urlTemplate + "2").contentType(MediaType.APPLICATION_JSON)
-		                                      .content(new Gson().toJson(book)))
-		       .andExpect(status().isNotFound())
-		       .andExpect(jsonPath("$", is("NOT FOUND")));
+		verify(bookRepository, times(1)).save(any());
 	}
 
 	@Test
-	void addNewBook() throws Exception {
-		Book book = CommonUtils.convertFromBookDTO(bookList.get(1));
+	void deleteBookByIdTest() {
+		Book book = bookList.get(0);
+		given(bookRepository.deleteById(book.getId())).willReturn(Mono.empty());
 
-		given(bookService.addNewBook(book)).willReturn(true);
+		webTestClient.delete()
+		             .uri(baseUrl + book.getId())
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody().isEmpty();
 
-		mockMvc.perform(post(urlTemplate).contentType(MediaType.APPLICATION_JSON)
-		                                 .content(new Gson().toJson(book)))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$", is("CREATED")));
-
-		given(bookService.addNewBook(book)).willReturn(false);
-
-		mockMvc.perform(post(urlTemplate).contentType(MediaType.APPLICATION_JSON)
-		                                 .content(new Gson().toJson(book)))
-		       .andExpect(status().isNotFound())
-		       .andExpect(jsonPath("$", is("NOT FOUND")));
+		verify(bookRepository, times(1)).deleteById(book.getId());
 	}
 
 	@Test
-	void updateLastReadChapter() throws Exception {
+	void updateLastReadChapterTest() {
+		Book book = bookList.get(0);
+		given(bookRepository.findById(book.getId())).willReturn(Mono.just(book));
 
-		given(bookService.updateChapter("1L", 10)).willReturn(true);
-		given(bookService.updateChapter("qqqqq", 10)).willReturn(false);
+		webTestClient.post()
+		             .uri(baseUrl + book.getId())
+		             .contentType(MediaType.APPLICATION_JSON)
+		             .body(BodyInserters.fromValue(20))
+		             .exchange()
+		             .expectStatus().isOk()
+		             .expectBody()
+		             .jsonPath("$").isEqualTo("Updated");
 
-		mockMvc.perform(post(urlTemplate + "1/last-read-chapter=10"))
-		       .andExpect(status().isOk())
-		       .andExpect(jsonPath("$", is("UPDATED")));
-
-		mockMvc.perform(post(urlTemplate + "2/last-read-chapter=10"))
-		       .andExpect(status().isNotFound())
-		       .andExpect(jsonPath("$", is("NOT FOUND")));
-
+		verify(bookRepository, times(1)).findById(book.getId());
 	}
 }
