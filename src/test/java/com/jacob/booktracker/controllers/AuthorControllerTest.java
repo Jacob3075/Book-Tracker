@@ -2,7 +2,6 @@ package com.jacob.booktracker.controllers;
 
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Author;
-import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.services.AuthorService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.*;
@@ -44,12 +44,12 @@ class AuthorControllerTest {
 		author1 = new Author();
 		author1.setAuthorName("Name 1");
 		author1.setId("1");
-		author1.setBooks(List.of(new Book()));
+		author1.setBookIds(Set.of("1", "2"));
 
 		author2 = new Author();
 		author2.setId("2");
 		author2.setAuthorName("Name 2");
-		author2.setBooks(List.of(new Book()));
+		author2.setBookIds(Set.of("1", "2"));
 	}
 
 	@Test
@@ -63,6 +63,7 @@ class AuthorControllerTest {
 		             .expectBody()
 		             .jsonPath("$[0].id").isEqualTo(author1.getId())
 		             .jsonPath("$[0].authorName").isEqualTo(author1.getAuthorName())
+		             .jsonPath("$[0].bookIds").isArray()
 		             .jsonPath("$[1].id").isEqualTo(author2.getId())
 		             .jsonPath("$[1].authorName").isEqualTo(author2.getAuthorName());
 
@@ -78,7 +79,10 @@ class AuthorControllerTest {
 		             .expectStatus()
 		             .isOk()
 		             .expectBody()
-		             .jsonPath("$.authorName").isEqualTo(author1.getAuthorName());
+		             .jsonPath("$.id").isEqualTo(author1.getId())
+		             .jsonPath("$.authorName").isEqualTo(author1.getAuthorName())
+		             .jsonPath("$.bookIds").isArray();
+
 	}
 
 	@Test
