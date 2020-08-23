@@ -45,9 +45,9 @@ public class CategoryService {
 		return true;
 	}
 
-	public boolean updateCategory(String id, Category newCategory) {
-		return Category.stream(List.of(newCategory))
-		               .updateCategory(id, categoryRepository)
-		               .saveCategory(categoryRepository);
+	public void updateCategory(String id, Category newCategory) {
+//		return Category.stream(List.of(newCategory))
+//		               .updateCategory(id, categoryRepository)
+//		               .saveCategory(categoryRepository);
 	}
 }

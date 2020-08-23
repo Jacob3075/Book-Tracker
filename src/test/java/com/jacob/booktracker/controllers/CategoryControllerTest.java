@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.jacob.booktracker.dtos.response.CategoryDTO;
 import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.services.CategoryService;
-import com.jacob.booktracker.utils.CommonUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,8 +80,8 @@ class CategoryControllerTest {
 
 	@Test
 	void addNewCategory() throws Exception {
-		Category category = CommonUtils.convertFromCategoryDTO(categoryList.get(1));
-
+//		Category category = CommonUtils.convertFromCategoryDTO(categoryList.get(1));
+		Category category = new Category();
 		given(categoryService.addNewCategory(category)).willReturn(true);
 
 		mockMvc.perform(post(urlTemplate).contentType(MediaType.APPLICATION_JSON)
