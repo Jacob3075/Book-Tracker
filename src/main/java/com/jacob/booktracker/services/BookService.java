@@ -1,84 +1,45 @@
 package com.jacob.booktracker.services;
 
-import com.jacob.booktracker.dtos.response.BookDTO;
 import com.jacob.booktracker.models.Book;
-import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
-import com.jacob.booktracker.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Service
 public class BookService {
 
-	private final BookRepository     bookRepository;
-	private final AuthorRepository   authorRepository;
-	private final CategoryRepository categoryRepository;
+	private final BookRepository bookRepository;
 
 	public BookService(
-			BookRepository bookRepository, AuthorRepository authorRepository,
-			CategoryRepository categoryRepository) {
+			BookRepository bookRepository) {
 		this.bookRepository = bookRepository;
-		this.authorRepository = authorRepository;
-		this.categoryRepository = categoryRepository;
 	}
 
-	public List<BookDTO> findAll() {
-//		return bookRepository.findAll()
-//		                     .stream()
-//		                     .map(CommonUtils::convertToBookDTO)
-//		                     .collect(Collectors.toList());
-		return List.of();
+	public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+		return ok().body(bookRepository.findAll(), Book.class);
 	}
 
-	public boolean deleteById(String id) {
-//		Optional<Book> byId = bookRepository.findById(id);
-//		if (byId.isPresent()) {
-//			bookRepository.deleteById(id);
-//			return true;
-//		} else {
-//			return false;
-//		}
-		return true;
+	public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+		return ok().body(bookRepository.findById(serverRequest.pathVariable("id")), Book.class);
 	}
 
-	public Optional<BookDTO> findById(String id) {
-//		return CommonUtils.convertToBookDTO(bookRepository.findById(id));
-		return Optional.empty();
+	public Mono<ServerResponse> deleteById(ServerRequest serverRequest) {
+		return ok().body(bookRepository.deleteById(serverRequest.pathVariable("id")), Void.class);
 	}
 
-	public boolean updateBook(String id, Book newBook) {
-		return Book.stream(List.of(newBook))
-		           .ifNotNewBook(bookRepository)
-		           .addNewAuthorsFromBook(authorRepository)
-		           .addNewCategoriesFromBook(categoryRepository)
-		           .updateBook(
-				           id,
-				           bookRepository,
-				           authorRepository,
-				           categoryRepository
-		           )
-		           .saveBook(bookRepository);
+	public Mono<ServerResponse> updateBook(ServerRequest serverRequest) {
+		return addNewBook(serverRequest);
 	}
 
-	public boolean addNewBook(Book book) {
-		return Book.stream(List.of(book))
-		           .ifNewBook(bookRepository)
-		           .addNewAuthorsFromBook(authorRepository)
-		           .addNewCategoriesFromBook(categoryRepository)
-		           .updateAuthors(authorRepository)
-		           .updateCategories(categoryRepository)
-		           .saveBook(bookRepository);
-	}
-
-	public boolean updateChapter(String id, int newChapter) {
-//		Optional<Book> optionalBook = bookRepository.findById(id);
-//		if (optionalBook.isEmpty()) return false;
-//		Book book = optionalBook.get();
-//		book.setLastReadChapter(newChapter);
-//		bookRepository.save(book);
-		return true;
+	public Mono<ServerResponse> addNewBook(ServerRequest serverRequest) {
+		return ok().body(
+				serverRequest.bodyToMono(Book.class)
+				             .flatMap(bookRepository::save),
+				Book.class
+		);
 	}
 }

@@ -3,6 +3,7 @@ package com.jacob.booktracker.controllers;
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.services.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,8 +20,11 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
@@ -32,13 +36,16 @@ import static org.mockito.Mockito.verify;
 @Import({BookService.class, MongoReactiveApplication.class, BookController.class})
 class BookControllerTest {
 
-	private final List<Book>   bookList   = new ArrayList<>();
-	private final List<Author> authorList = new ArrayList<>();
+	private final List<Book>  bookList   = new ArrayList<>();
+	private final Set<String> authorList = new HashSet<>();
 	//	private final List<Category> categoryList = new ArrayList<>();
-	private final String       baseUrl    = "http://localhost:8080/api.book-store/books/";
+	private final String      baseUrl    = "http://localhost:8080/api.book-store/books/";
 
 	@MockBean
 	private BookRepository bookRepository;
+
+	@MockBean
+	private AuthorRepository authorRepository;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -50,31 +57,33 @@ class BookControllerTest {
 //		categoryList.clear();
 
 		Author author1 = new Author();
+		author1.setId("1");
 		author1.setAuthorName("Author 1");
 
 		Author author2 = new Author();
+		author2.setId("2");
 		author2.setAuthorName("Author 2");
 
-		authorList.add(author1);
-		authorList.add(author2);
+		authorList.add(author1.getId());
+		authorList.add(author2.getId());
 
 		Book book1 = new Book();
 		book1.setId("1");
-		book1.setName("Book 1");
+		book1.setBookName("Book 1");
 		book1.setDescription("Description");
 		book1.setPages(300);
 		book1.setChapters(30);
 		book1.setLastReadChapter(5);
-		book1.setAuthors(authorList);
+		book1.setAuthorIds(authorList);
 
 		Book book2 = new Book();
 		book2.setId("2");
-		book2.setName("Book 2");
+		book2.setBookName("Book 2");
 		book2.setDescription("Description");
 		book2.setPages(400);
 		book2.setChapters(35);
 		book2.setLastReadChapter(15);
-		book2.setAuthors(authorList);
+		book2.setAuthorIds(authorList);
 
 		bookList.add(book1);
 		bookList.add(book2);
@@ -91,11 +100,12 @@ class BookControllerTest {
 		             .expectStatus().isOk()
 		             .expectBody()
 		             .jsonPath("$[0].id").isEqualTo(book.getId())
-		             .jsonPath("$[0].name").isEqualTo(book.getName())
+		             .jsonPath("$[0].bookName").isEqualTo(book.getBookName())
 		             .jsonPath("$[0].description").isEqualTo(book.getDescription())
 		             .jsonPath("$[0].pages").isEqualTo(book.getPages())
 		             .jsonPath("$[0].chapters").isEqualTo(book.getChapters())
-		             .jsonPath("$[0].lastReadChapter").isEqualTo(book.getLastReadChapter());
+		             .jsonPath("$[0].lastReadChapter").isEqualTo(book.getLastReadChapter())
+		             .jsonPath("$[0].authorIds").isArray();
 
 		verify(bookRepository, times(1)).findAll();
 	}
@@ -111,8 +121,9 @@ class BookControllerTest {
 		             .expectStatus().isOk()
 		             .expectBody()
 		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.name").isEqualTo(book.getName())
-		             .jsonPath("$.description").isEqualTo(book.getDescription());
+		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
+		             .jsonPath("$.description").isEqualTo(book.getDescription())
+		             .jsonPath("$.authorIds").isArray();
 
 		verify(bookRepository, times(1)).findById(book.getId());
 	}
@@ -130,7 +141,7 @@ class BookControllerTest {
 		             .expectStatus().isOk()
 		             .expectBody()
 		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.name").isEqualTo(book.getName())
+		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
 		             .jsonPath("$.description").isEqualTo(book.getDescription());
 
 		verify(bookRepository, times(1)).save(any());
@@ -149,7 +160,7 @@ class BookControllerTest {
 		             .expectStatus().isOk()
 		             .expectBody()
 		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.name").isEqualTo(book.getName())
+		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
 		             .jsonPath("$.description").isEqualTo(book.getDescription());
 
 		verify(bookRepository, times(1)).save(any());
@@ -170,19 +181,30 @@ class BookControllerTest {
 	}
 
 	@Test
-	void updateLastReadChapterTest() {
-		Book book = bookList.get(0);
-		given(bookRepository.findById(book.getId())).willReturn(Mono.just(book));
+	void name() {
+		Author author1 = new Author();
+		Author author2 = new Author();
 
-		webTestClient.post()
-		             .uri(baseUrl + book.getId())
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(20))
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody()
-		             .jsonPath("$").isEqualTo("Updated");
+		author1.setAuthorName("Author 1");
+		author2.setAuthorName("Author 2");
+		author1.setId("1");
+		author2.setId("2");
 
-		verify(bookRepository, times(1)).findById(book.getId());
+		given(bookRepository.findById("1")).willReturn(Mono.just(bookList.get(0)));
+		given(authorRepository.findById("1")).willReturn(Mono.just(author1));
+		given(authorRepository.findById("2")).willReturn(Mono.just(author2));
+
+		Set<String> authorIds = webTestClient.get()
+		                                     .uri(baseUrl + "1")
+		                                     .exchange()
+		                                     .returnResult(Book.class)
+		                                     .getResponseBody()
+		                                     .blockFirst(Duration.ofSeconds(10))
+		                                     .getAuthorIds();
+
+		authorIds.stream()
+		         .map(s -> authorRepository.findById(s))
+		         .forEach(authorMono -> authorMono.subscribe(System.out::println));
 	}
+
 }
