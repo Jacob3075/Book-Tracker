@@ -1,8 +1,6 @@
 package com.jacob.booktracker.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.jacob.booktracker.utils.mono.AuthorMono;
-import com.jacob.booktracker.utils.streams.AuthorStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -11,8 +9,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Document(collection = "Authors")
 @Data
@@ -26,14 +24,7 @@ public class Author {
 	@NotEmpty
 	private String authorName;
 
-	@JsonIgnore
-	private List<Book> books = new ArrayList<>();
-//	@JsonIgnoreProperties({"authors", "categories"})
-//	private Set<Book> books = new HashSet<>();
-
-	public static AuthorStream stream(List<Author> authors) {
-		return null;
-	}
+	private Set<String> bookIds = new HashSet<>();
 
 	public static AuthorMono mono(Mono<Author> author) {
 		return new AuthorMono(author);

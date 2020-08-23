@@ -8,5 +8,5 @@ import java.util.List;
 
 @Repository
 public interface BookRepository extends ReactiveMongoRepository<Book, String> {
-	List<Book> findBookByName(String name);
+	List<Book> findBookByBookName(String name);
 }

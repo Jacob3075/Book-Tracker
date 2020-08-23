@@ -1,6 +1,5 @@
 package com.jacob.booktracker.models;
 
-import com.jacob.booktracker.utils.streams.CategoryStream;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,8 +25,4 @@ public class Category {
 	private List<Book> books = new ArrayList<>();
 //	@JsonIgnoreProperties({"authors", "categories"})
 //	private Set<Book> books = new HashSet<>();
-
-	public static CategoryStream stream(List<Category> categories) {
-		return new CategoryStream(categories);
-	}
 }

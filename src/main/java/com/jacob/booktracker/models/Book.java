@@ -1,17 +1,18 @@
 package com.jacob.booktracker.models;
 
-import com.jacob.booktracker.utils.streams.BookStream;
+import com.jacob.booktracker.utils.mono.BookMono;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import reactor.core.publisher.Mono;
 
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@Document
+@Document(collection = "Books")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -21,7 +22,7 @@ public class Book {
 	private String id;
 
 	@NotEmpty
-	private String name;
+	private String bookName;
 	@NotEmpty
 	private String description;
 
@@ -30,18 +31,10 @@ public class Book {
 
 	private int lastReadChapter;
 
-	private List<Author> authors = new ArrayList<>();
-//	@JsonIgnoreProperties("books")
-//	private Set<Author> authors = new HashSet<>();
+	private Set<String> authorIds = new HashSet<>();
+	private Set<String> categoryIds = new HashSet<>();
 
-	private List<Category> categories = new ArrayList<>();
-//	@JsonIgnoreProperties("books")
-//	private Set<Category> categories = new HashSet<>();
-
-//	TODO: USE SETS INSTEAD OF LISTS (FIX INFINITE RECURSION WHEN USING SETS)
-
-
-	public static BookStream stream(List<Book> books) {
-		return new BookStream(books);
+	public static BookMono mono(Mono<Book> bookMono) {
+		return new BookMono(bookMono);
 	}
 }
