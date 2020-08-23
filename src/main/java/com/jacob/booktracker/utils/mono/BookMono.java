@@ -1,7 +1,6 @@
 package com.jacob.booktracker.utils.mono;
 
 import com.jacob.booktracker.models.Book;
-import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
 import lombok.NoArgsConstructor;
 import org.springframework.boot.autoconfigure.AutoConfigureAfter;
@@ -14,22 +13,20 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ok
 @AutoConfigureAfter
 public class BookMono extends ForwardingMono<Book> {
 
-	private Mono<Book> bookMono;
+	private Mono<Book> mono;
 
 	private BookRepository   bookRepository;
-	private AuthorRepository authorRepository;
 
-	public BookMono(BookRepository bookRepository, AuthorRepository authorRepository) {
+	public BookMono(BookRepository bookRepository) {
 		this.bookRepository = bookRepository;
-		this.authorRepository = authorRepository;
 	}
 
-	public BookMono(Mono<Book> bookMono) {
-		this.bookMono = bookMono;
+	public BookMono(Mono<Book> mono) {
+		this.mono = mono;
 	}
 
 	public Mono<ServerResponse> getResponse() {
-		return ok().body(bookMono, Book.class);
+		return ok().body(mono, Book.class);
 	}
 
 	public BookMono saveBookAuthors() {

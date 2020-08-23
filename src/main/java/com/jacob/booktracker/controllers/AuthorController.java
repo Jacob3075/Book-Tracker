@@ -10,14 +10,9 @@ import static org.springframework.web.reactive.function.server.RouterFunctions.n
 import static org.springframework.web.reactive.function.server.RouterFunctions.route;
 
 public class AuthorController {
-	private final AuthorService authorService;
-
-	public AuthorController(AuthorService authorService) {
-		this.authorService = authorService;
-	}
 
 	@Bean
-	public RouterFunction<ServerResponse> authorEndpoints() {
+	public RouterFunction<ServerResponse> authorEndpoints(AuthorService authorService) {
 		return nest(
 				path("/api.book-store/authors"),
 				route(GET("/"), authorService::findAll)

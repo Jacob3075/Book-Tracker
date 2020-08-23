@@ -13,15 +13,15 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class AuthorMono extends ForwardingMono<Author> {
 
-	private Mono<Author>     authorMono;
+	private Mono<Author>     mono;
 	private AuthorRepository authorRepository;
 
 	public AuthorMono(AuthorRepository authorRepository) {
 		this.authorRepository = authorRepository;
 	}
 
-	public AuthorMono(Mono<Author> authorMono) {
-		this.authorMono = authorMono;
+	public AuthorMono(Mono<Author> mono) {
+		this.mono = mono;
 	}
 
 //	public AuthorStream updateAuthor(Mono<Author> oldAuthorMono) {
@@ -38,7 +38,7 @@ public class AuthorMono extends ForwardingMono<Author> {
 	/*
 	 * */
 	public AuthorMono updateAuthor(Mono<Author> oldAuthorMono) {
-		return new AuthorMono(authorMono.doOnNext(
+		return new AuthorMono(mono.doOnNext(
 				newAuthor -> oldAuthorMono.flatMap(
 						oldAuthor -> {
 							BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
@@ -64,7 +64,7 @@ public class AuthorMono extends ForwardingMono<Author> {
 
 	@Override
 	Mono<Author> getMono() {
-		return authorMono;
+		return mono;
 	}
 
 	@Override
