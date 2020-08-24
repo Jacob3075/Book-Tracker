@@ -3,6 +3,7 @@ package com.jacob.booktracker.controllers;
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
+import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.services.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,10 +35,10 @@ import static org.mockito.Mockito.verify;
 @Import({BookService.class, MongoReactiveApplication.class, BookController.class})
 class BookControllerTest {
 
-	private final List<Book>  bookList   = new ArrayList<>();
-	private final Set<String> authorList = new HashSet<>();
-	//	private final List<Category> categoryList = new ArrayList<>();
-	private final String      baseUrl    = "http://localhost:8080/api.book-store/books/";
+	private final List<Book>  bookList    = new ArrayList<>();
+	private final Set<String> authorSet   = new HashSet<>();
+	private final Set<String> categorySet = new HashSet<>();
+	private final String      baseUrl     = "http://localhost:8080/api.book-store/books/";
 
 	@MockBean
 	private BookRepository bookRepository;
@@ -48,8 +49,8 @@ class BookControllerTest {
 	@BeforeEach
 	void setUp() {
 		bookList.clear();
-		authorList.clear();
-//		categoryList.clear();
+		authorSet.clear();
+		categorySet.clear();
 
 		Author author1 = new Author();
 		author1.setId("1");
@@ -59,8 +60,20 @@ class BookControllerTest {
 		author2.setId("2");
 		author2.setAuthorName("Author 2");
 
-		authorList.add(author1.getId());
-		authorList.add(author2.getId());
+		authorSet.add(author1.getId());
+		authorSet.add(author2.getId());
+
+		Category category1 = new Category();
+		Category category2 = new Category();
+
+		category1.setId("1");
+		category2.setId("2");
+
+		category1.setCategoryName("Category 1");
+		category2.setCategoryName("Category 2");
+
+		categorySet.add(category1.getId());
+		categorySet.add(category2.getId());
 
 		Book book1 = new Book();
 		book1.setId("1");
@@ -69,7 +82,8 @@ class BookControllerTest {
 		book1.setPages(300);
 		book1.setChapters(30);
 		book1.setLastReadChapter(5);
-		book1.setAuthorIds(authorList);
+		book1.setAuthorIds(authorSet);
+		book1.setCategoryIds(categorySet);
 
 		Book book2 = new Book();
 		book2.setId("2");
@@ -78,7 +92,8 @@ class BookControllerTest {
 		book2.setPages(400);
 		book2.setChapters(35);
 		book2.setLastReadChapter(15);
-		book2.setAuthorIds(authorList);
+		book2.setAuthorIds(authorSet);
+		book2.setCategoryIds(categorySet);
 
 		bookList.add(book1);
 		bookList.add(book2);
@@ -100,7 +115,8 @@ class BookControllerTest {
 		             .jsonPath("$[0].pages").isEqualTo(book.getPages())
 		             .jsonPath("$[0].chapters").isEqualTo(book.getChapters())
 		             .jsonPath("$[0].lastReadChapter").isEqualTo(book.getLastReadChapter())
-		             .jsonPath("$[0].authorIds").isArray();
+		             .jsonPath("$[0].authorIds").isArray()
+		             .jsonPath("$[0].categoryIds").isArray();
 
 		verify(bookRepository, times(1)).findAll();
 	}
@@ -118,7 +134,8 @@ class BookControllerTest {
 		             .jsonPath("$.id").isEqualTo(book.getId())
 		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
 		             .jsonPath("$.description").isEqualTo(book.getDescription())
-		             .jsonPath("$.authorIds").isArray();
+		             .jsonPath("$.authorIds").isArray()
+		             .jsonPath("$.categoryIds").isArray();
 
 		verify(bookRepository, times(1)).findById(book.getId());
 	}
