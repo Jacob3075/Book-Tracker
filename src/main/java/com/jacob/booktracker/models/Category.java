@@ -3,12 +3,12 @@ package com.jacob.booktracker.models;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import org.springframework.data.annotation.Id;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Document
 @Data
@@ -22,7 +22,5 @@ public class Category {
 	@NotEmpty
 	private String categoryName;
 
-	private List<Book> books = new ArrayList<>();
-//	@JsonIgnoreProperties({"authors", "categories"})
-//	private Set<Book> books = new HashSet<>();
+	private Set<String> bookIds = new HashSet<>();
 }
