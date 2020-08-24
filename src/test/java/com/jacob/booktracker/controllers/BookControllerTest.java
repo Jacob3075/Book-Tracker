@@ -3,7 +3,6 @@ package com.jacob.booktracker.controllers;
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
-import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.services.BookService;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +19,6 @@ import org.springframework.web.reactive.function.BodyInserters;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -43,9 +41,6 @@ class BookControllerTest {
 
 	@MockBean
 	private BookRepository bookRepository;
-
-	@MockBean
-	private AuthorRepository authorRepository;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -179,32 +174,4 @@ class BookControllerTest {
 
 		verify(bookRepository, times(1)).deleteById(book.getId());
 	}
-
-	@Test
-	void name() {
-		Author author1 = new Author();
-		Author author2 = new Author();
-
-		author1.setAuthorName("Author 1");
-		author2.setAuthorName("Author 2");
-		author1.setId("1");
-		author2.setId("2");
-
-		given(bookRepository.findById("1")).willReturn(Mono.just(bookList.get(0)));
-		given(authorRepository.findById("1")).willReturn(Mono.just(author1));
-		given(authorRepository.findById("2")).willReturn(Mono.just(author2));
-
-		Set<String> authorIds = webTestClient.get()
-		                                     .uri(baseUrl + "1")
-		                                     .exchange()
-		                                     .returnResult(Book.class)
-		                                     .getResponseBody()
-		                                     .blockFirst(Duration.ofSeconds(10))
-		                                     .getAuthorIds();
-
-		authorIds.stream()
-		         .map(s -> authorRepository.findById(s))
-		         .forEach(authorMono -> authorMono.subscribe(System.out::println));
-	}
-
 }
