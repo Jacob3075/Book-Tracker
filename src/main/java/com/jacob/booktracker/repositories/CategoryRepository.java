@@ -1,18 +1,7 @@
 package com.jacob.booktracker.repositories;
 
 import com.jacob.booktracker.models.Category;
-import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
-import org.springframework.stereotype.Repository;
+import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.util.List;
-import java.util.Optional;
-
-@Repository
-
-public interface CategoryRepository extends ReactiveMongoRepository<Category, String> {
-
-	List<Category> findCategoriesByCategoryName(String name);
-
-
-	Optional<Category> findCategoryByCategoryName(String name);
+public interface CategoryRepository extends MongoRepository<Category, String> {
 }

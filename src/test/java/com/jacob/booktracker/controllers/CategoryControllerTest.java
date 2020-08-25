@@ -2,7 +2,7 @@ package com.jacob.booktracker.controllers;
 
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Category;
-import com.jacob.booktracker.repositories.CategoryRepository;
+import com.jacob.booktracker.repositories.ReactiveCategoryRepository;
 import com.jacob.booktracker.services.CategoryService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,7 +35,7 @@ class CategoryControllerTest {
 	private final String      baseUrl    = "http://localhost:8080/api.book-store/categories/";
 
 	@MockBean
-	private CategoryRepository categoryRepository;
+	private ReactiveCategoryRepository reactiveCategoryRepository;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -60,7 +60,7 @@ class CategoryControllerTest {
 
 	@Test
 	void getAllCategoriesTest() {
-		given(categoryRepository.findAll()).willReturn(Flux.fromIterable(categoryList));
+		given(reactiveCategoryRepository.findAll()).willReturn(Flux.fromIterable(categoryList));
 
 		webTestClient.get()
 		             .uri(baseUrl)
@@ -72,13 +72,13 @@ class CategoryControllerTest {
 		             .jsonPath("$[0].categoryName").isEqualTo(categoryList.get(0).getCategoryName())
 		             .jsonPath("$[0].bookIds").isArray();
 		
-		verify(categoryRepository, times(1)).findAll();
+		verify(reactiveCategoryRepository, times(1)).findAll();
 	}
 
 	@Test
 	void getCategoryByIdTest() {
 		Category category = categoryList.get(0);
-		given(categoryRepository.findById(category.getId())).willReturn(Mono.just(category));
+		given(reactiveCategoryRepository.findById(category.getId())).willReturn(Mono.just(category));
 
 		webTestClient.get()
 		             .uri(baseUrl + category.getId())
@@ -89,13 +89,13 @@ class CategoryControllerTest {
 		             .jsonPath("$.categoryName").isEqualTo(category.getCategoryName())
 		             .jsonPath("$.bookIds").isArray();
 
-		verify(categoryRepository, times(1)).findById(category.getId());
+		verify(reactiveCategoryRepository, times(1)).findById(category.getId());
 	}
 
 	@Test
 	void addNewCategoryTest() {
 		Category category = categoryList.get(0);
-		given(categoryRepository.save(any())).willReturn(Mono.just(category));
+		given(reactiveCategoryRepository.save(any())).willReturn(Mono.just(category));
 
 		webTestClient.post()
 		             .uri(baseUrl)
@@ -108,13 +108,13 @@ class CategoryControllerTest {
 		             .jsonPath("$.categoryName").isEqualTo(category.getCategoryName())
 		             .jsonPath("$.bookIds").isArray();
 
-		verify(categoryRepository, times(1)).save(any());
+		verify(reactiveCategoryRepository, times(1)).save(any());
 	}
 
 	@Test
 	void updateCategoryTest() {
 		Category category = categoryList.get(0);
-		given(categoryRepository.save(any())).willReturn(Mono.just(category));
+		given(reactiveCategoryRepository.save(any())).willReturn(Mono.just(category));
 
 		webTestClient.put()
 		             .uri(baseUrl)
@@ -127,13 +127,13 @@ class CategoryControllerTest {
 		             .jsonPath("$.categoryName").isEqualTo(category.getCategoryName())
 		             .jsonPath("$.bookIds").isArray();
 
-		verify(categoryRepository, times(1)).save(any());
+		verify(reactiveCategoryRepository, times(1)).save(any());
 	}
 
 	@Test
 	void deleteCategoryTest() {
 		Category category = categoryList.get(0);
-		given(categoryRepository.deleteById(category.getId())).willReturn(Mono.empty());
+		given(reactiveCategoryRepository.deleteById(category.getId())).willReturn(Mono.empty());
 
 		webTestClient.delete()
 		             .uri(baseUrl + category.getId())
@@ -141,6 +141,6 @@ class CategoryControllerTest {
 		             .expectStatus().isOk()
 		             .expectBody().isEmpty();
 
-		verify(categoryRepository, times(1)).deleteById(category.getId());
+		verify(reactiveCategoryRepository, times(1)).deleteById(category.getId());
 	}
 }

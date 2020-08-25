@@ -20,6 +20,7 @@ public class Book {
 
 	@Id
 	private String id;
+	private String userId;
 
 	@NotEmpty
 	private String bookName;
