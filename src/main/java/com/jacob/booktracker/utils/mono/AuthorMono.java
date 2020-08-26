@@ -1,7 +1,7 @@
 package com.jacob.booktracker.utils.mono;
 
 import com.jacob.booktracker.models.Author;
-import com.jacob.booktracker.repositories.ReactiveAuthorRepository;
+import com.jacob.booktracker.repositories.AuthorRepository;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -13,11 +13,11 @@ import reactor.core.publisher.Mono;
 @AllArgsConstructor
 public class AuthorMono extends ForwardingMono<Author> {
 
-	private Mono<Author>             mono;
-	private ReactiveAuthorRepository reactiveAuthorRepository;
+	private Mono<Author>     mono;
+	private AuthorRepository authorRepository;
 
-	public AuthorMono(ReactiveAuthorRepository reactiveAuthorRepository) {
-		this.reactiveAuthorRepository = reactiveAuthorRepository;
+	public AuthorMono(AuthorRepository authorRepository) {
+		this.authorRepository = authorRepository;
 	}
 
 	public AuthorMono(Mono<Author> mono) {
@@ -42,7 +42,7 @@ public class AuthorMono extends ForwardingMono<Author> {
 				newAuthor -> oldAuthorMono.flatMap(
 						oldAuthor -> {
 							BeanUtils.copyProperties(newAuthor, oldAuthor, "id");
-							return reactiveAuthorRepository.save(oldAuthor);
+							return authorRepository.save(oldAuthor);
 						}).subscribe())
 		);
 

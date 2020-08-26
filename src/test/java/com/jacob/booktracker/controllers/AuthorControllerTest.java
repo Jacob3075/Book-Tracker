@@ -2,7 +2,7 @@ package com.jacob.booktracker.controllers;
 
 import com.jacob.booktracker.config.MongoReactiveApplication;
 import com.jacob.booktracker.models.Author;
-import com.jacob.booktracker.repositories.ReactiveAuthorRepository;
+import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.services.AuthorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -29,9 +29,9 @@ import static org.mockito.Mockito.*;
 @Import({AuthorService.class, MongoReactiveApplication.class, AuthorController.class})
 class AuthorControllerTest {
 
-	private final String                   baseUri = "http://localhost:8080/api.book-store/authors/";
+	private final String           baseUri = "http://localhost:8080/api.book-store/authors/";
 	@MockBean
-	private       ReactiveAuthorRepository reactiveAuthorRepository;
+	private       AuthorRepository authorRepository;
 
 	@Autowired
 	private WebTestClient webTestClient;
@@ -54,7 +54,7 @@ class AuthorControllerTest {
 
 	@Test
 	void getAllAuthorsTest() {
-		given(reactiveAuthorRepository.findAll()).willReturn(Flux.fromIterable(List.of(author1, author2)));
+		given(authorRepository.findAll()).willReturn(Flux.fromIterable(List.of(author1, author2)));
 
 		webTestClient.get()
 		             .uri(baseUri)
@@ -71,7 +71,7 @@ class AuthorControllerTest {
 
 	@Test
 	void getAuthorByIdTest() {
-		given(reactiveAuthorRepository.findById(author1.getId())).willReturn(Mono.just(author1));
+		given(authorRepository.findById(author1.getId())).willReturn(Mono.just(author1));
 
 		webTestClient.get()
 		             .uri(baseUri + author1.getId())
@@ -87,7 +87,7 @@ class AuthorControllerTest {
 
 	@Test
 	void addNewAuthorTest() {
-		given(reactiveAuthorRepository.save(any())).willReturn(Mono.just(author1));
+		given(authorRepository.save(any())).willReturn(Mono.just(author1));
 
 		webTestClient.post()
 		             .uri(baseUri)
@@ -99,12 +99,12 @@ class AuthorControllerTest {
 		             .jsonPath("$.authorName").isEqualTo(author1.getAuthorName())
 		             .jsonPath("$.id").isEqualTo(author1.getId());
 
-		verify(reactiveAuthorRepository, times(1)).save(any());
+		verify(authorRepository, times(1)).save(any());
 	}
 
 	@Test
 	void updateAuthorTest() {
-		given(reactiveAuthorRepository.save(any())).willReturn(Mono.just(author1));
+		given(authorRepository.save(any())).willReturn(Mono.just(author1));
 
 		webTestClient.put()
 		             .uri(baseUri)
@@ -116,18 +116,18 @@ class AuthorControllerTest {
 		             .jsonPath("$.id").isEqualTo(author1.getId())
 		             .jsonPath("$.authorName").isEqualTo(author1.getAuthorName());
 
-		verify(reactiveAuthorRepository, times(1)).save(any());
+		verify(authorRepository, times(1)).save(any());
 	}
 
 	@Test
 	void deleteAuthorByIdTest() {
-		given(reactiveAuthorRepository.deleteById(author1.getId())).willReturn(Mono.empty());
+		given(authorRepository.deleteById(author1.getId())).willReturn(Mono.empty());
 
 		webTestClient.delete()
 		             .uri(baseUri + author1.getId())
 		             .exchange()
 		             .expectStatus().isOk();
 
-		verify(reactiveAuthorRepository, times(1)).deleteById(author1.getId());
+		verify(authorRepository, times(1)).deleteById(author1.getId());
 	}
 }
