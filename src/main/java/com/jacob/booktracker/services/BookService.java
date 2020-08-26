@@ -24,7 +24,8 @@ public class BookService {
 	}
 
 	public Mono<ServerResponse> findById(ServerRequest serverRequest) {
-		return ok().body(bookRepository.findById(serverRequest.pathVariable("id")), Book.class);
+		return Book.mono(bookRepository.findById(serverRequest.pathVariable("id")))
+		           .getResponseDto();
 	}
 
 	public Mono<ServerResponse> deleteById(ServerRequest serverRequest) {
