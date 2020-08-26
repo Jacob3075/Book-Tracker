@@ -1,14 +1,21 @@
 package com.jacob.booktracker.controllers;
 
 import com.jacob.booktracker.config.MongoReactiveApplication;
+import com.jacob.booktracker.dtos.AuthorDTO;
 import com.jacob.booktracker.dtos.BookDTO;
+import com.jacob.booktracker.dtos.CategoryDTO;
 import com.jacob.booktracker.models.Author;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.models.Category;
+import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
+import com.jacob.booktracker.repositories.CategoryRepository;
 import com.jacob.booktracker.services.BookService;
 import com.jacob.booktracker.utils.CommonUtils;
-import org.junit.jupiter.api.BeforeEach;
+import com.jacob.booktracker.utils.StaticContextInitializer;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,283 +30,171 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 @WebFluxTest(controllers = BookController.class)
 @ExtendWith(SpringExtension.class)
-@Import({BookService.class, MongoReactiveApplication.class, BookController.class})
+@Import({BookService.class, BookController.class, MongoReactiveApplication.class, CommonUtils.class,
+		StaticContextInitializer.class, BookDTO.class, AuthorDTO.class, CategoryDTO.class})
 class BookControllerTest {
 
-	private final List<Book>    bookList    = new ArrayList<>();
-	private final Set<String>   authorSet   = new HashSet<>();
-	private final Set<String>   categorySet = new HashSet<>();
-	private final List<BookDTO> bookDTOs    = new ArrayList<>();
-
-	private final String baseUrl = "http://localhost:8080/api.book-store/books/";
+	private static final List<BookDTO> bookDTOs = new ArrayList<>();
+	private static final List<Book>    books    = new ArrayList<>();
+	private final        String        baseUrl  = "http://localhost:8080/api.book-store/books/";
 
 	@MockBean
 	private BookRepository bookRepository;
 
+	@MockBean
+	private AuthorRepository authorRepository;
+
+	@MockBean
+	private CategoryRepository categoryRepository;
+
 	@Autowired
 	private WebTestClient webTestClient;
 
-	@BeforeEach
-	void setUp() {
-		bookList.clear();
-		authorSet.clear();
-		categorySet.clear();
+	@BeforeAll
+	static void beforeAll() {
 		bookDTOs.clear();
 
-		Author author1 = new Author("1", "Author 1", Set.of());
-		Author author2 = new Author("2", "Author 2", Set.of());
+		Book book1 = new Book("1", "1", "Book 1", "Description", 300, 30, 5, Set.of("1", "2"), Set.of("1", "2"));
 
-		authorSet.add(author1.getId());
-		authorSet.add(author2.getId());
+		BookDTO bookDTO = BookDTO.builder()
+		                         .id(book1.getId())
+		                         .userId(book1.getUserId())
+		                         .bookName(book1.getBookName())
+		                         .description(book1.getDescription())
+		                         .pages(book1.getPages())
+		                         .chapters(book1.getChapters())
+		                         .lastReadChapter(book1.getLastReadChapter())
+		                         .categories(List.of(CategoryDTO.builder()
+		                                                        .categoryName("Cat 1")
+		                                                        .id("1")
+		                                                        .build()))
+		                         .authors(List.of(AuthorDTO.builder()
+		                                                   .authorName("Author 1")
+		                                                   .id("1")
+		                                                   .build()))
+		                         .build();
 
-		Category category1 = new Category("1", "Category 1", Set.of());
-		Category category2 = new Category("1", "Category 1", Set.of());
+		books.add(book1);
+		books.add(book1);
 
-		categorySet.add(category1.getId());
-		categorySet.add(category2.getId());
-
-		Book book1 = new Book("1", "1", "Book 1", "Description", 300, 30, 5, authorSet, categorySet);
-		Book book2 = new Book("2", "2", "Book 2", "Description", 450, 38, 15, authorSet, categorySet);
-
-		bookList.add(book1);
-		bookList.add(book2);
-
-		bookDTOs.addAll(bookList.stream()
-		                        .map(CommonUtils::getBookDtoFrom)
-		                        .collect(Collectors.toList()));
+		bookDTOs.add(bookDTO);
+		bookDTOs.add(bookDTO);
 	}
 
-	@Test
-	void getAllBooksTest() {
-		given(bookRepository.findAll()).willReturn(Flux.fromIterable(bookList));
-		Book book = bookList.get(0);
+	@Nested
+	@DisplayName("Tests to get all books and books by ID")
+	class GetBooksTest {
+		@Test
+		void getAllBooksTest() {
+			BookDTO bookDTO = bookDTOs.get(0);
+			given(bookRepository.findAll()).willReturn(Flux.fromIterable(books));
+			given(categoryRepository.findById("1")).willReturn(Mono.just(new Category("1", "Cat 1", Set.of())));
+			given(authorRepository.findById("1")).willReturn(Mono.just(new Author("1", "Author 1", Set.of())));
 
-		webTestClient.get()
-		             .uri(baseUrl)
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody()
-		             .jsonPath("$[0].id").isEqualTo(book.getId())
-		             .jsonPath("$[0].bookName").isEqualTo(book.getBookName())
-		             .jsonPath("$[0].description").isEqualTo(book.getDescription())
-		             .jsonPath("$[0].pages").isEqualTo(book.getPages())
-		             .jsonPath("$[0].chapters").isEqualTo(book.getChapters())
-		             .jsonPath("$[0].lastReadChapter").isEqualTo(book.getLastReadChapter())
-		             .jsonPath("$[0].authorIds").isArray()
-		             .jsonPath("$[0].categoryIds").isArray();
+			webTestClient.get()
+			             .uri(baseUrl)
+			             .exchange()
+			             .expectStatus().isOk()
+			             .expectBody()
+			             .consumeWith(System.out::println)
+			             .jsonPath("$").isArray()
+			             .jsonPath("$[0].id").isEqualTo(bookDTO.getId())
+			             .jsonPath("$[0].userId").isEqualTo(bookDTO.getUserId())
+			             .jsonPath("$[0].bookName").isEqualTo(bookDTO.getBookName())
+			             .jsonPath("$[0].description").isEqualTo(bookDTO.getDescription())
+			             .jsonPath("$[0].pages").isEqualTo(bookDTO.getPages())
+			             .jsonPath("$[0].chapters").isEqualTo(bookDTO.getChapters())
+			             .jsonPath("$[0].lastReadChapter").isEqualTo(bookDTO.getLastReadChapter())
+			             .jsonPath("$[0].authors").isArray()
+			             .jsonPath("$[0].authors[0].authorName")
+			             .isEqualTo(bookDTO.getAuthors().get(0).getAuthorName())
+			             .jsonPath("$[0].categories").isArray()
+			             .jsonPath("$[0].categories[0].categoryName")
+			             .isEqualTo(bookDTO.getCategories().get(0).getCategoryName());
+		}
 
-		verify(bookRepository, times(1)).findAll();
+		@Test
+		void getBookByIdTest() {
+			BookDTO bookDTO = bookDTOs.get(0);
+			given(bookRepository.findById("1")).willReturn(Mono.just(books.get(0)));
+			given(categoryRepository.findAllById(anySet()))
+					.willReturn(Flux.just(new Category("1", "Cat 1", Set.of()
+					)));
+			given(authorRepository.findAllById(anySet()))
+					.willReturn(Flux.just(new Author("1", "Author 1", Set.of()
+					)));
+//			MockedStatic mockedStatic;
+
+			webTestClient.get()
+			             .uri(baseUrl + "1")
+			             .exchange()
+			             .expectStatus().isOk()
+			             .expectBody()
+			             .consumeWith(System.out::println)
+			             .jsonPath("$.id").isEqualTo(bookDTO.getId())
+			             .jsonPath("$.userId").isEqualTo(bookDTO.getUserId())
+			             .jsonPath("$.bookName").isEqualTo(bookDTO.getBookName())
+			             .jsonPath("$.description").isEqualTo(bookDTO.getDescription())
+			             .jsonPath("$.pages").isEqualTo(bookDTO.getPages())
+			             .jsonPath("$.chapters").isEqualTo(bookDTO.getChapters())
+			             .jsonPath("$.lastReadChapter").isEqualTo(bookDTO.getLastReadChapter())
+			             .jsonPath("$.authors").isArray()
+			             .jsonPath("$.authors[0].authorName").isEqualTo(bookDTO.getAuthors().get(0).getAuthorName())
+			             .jsonPath("$.categories").isArray()
+			             .jsonPath("$.categories[0].categoryName")
+			             .isEqualTo(bookDTO.getCategories().get(0).getCategoryName());
+		}
+
+		@Test
+		void getBookById_notPresent() {
+			given(bookRepository.findById("1")).willReturn(Mono.empty());
+			given(categoryRepository.findById("1")).willReturn(Mono.empty());
+			given(authorRepository.findById("1")).willReturn(Mono.empty());
+
+			webTestClient.get()
+			             .uri(baseUrl + "1")
+			             .exchange()
+//			             .expectStatus().isBadRequest()
+			             .expectBody()
+			             .consumeWith(System.out::println)
+			             .isEmpty();
+		}
 	}
 
-	@Test
-	void getBookByIdTest_present() {
-		Book book = bookList.get(0);
-		given(bookRepository.findById(book.getId())).willReturn(Mono.just(book));
+	@Nested
+	@DisplayName("Tests to add new book")
+	class AddNewBookTests {
+		@Test
+		void addNewBookTest() {
+			BookDTO bookDTO = bookDTOs.get(0);
+			given(bookRepository.save(any())).willReturn(Mono.just(books.get(0)));
+			given(categoryRepository.findById("1")).willReturn(Mono.just(new Category("1", "Cat 1", Set.of())));
+			given(authorRepository.findById("1")).willReturn(Mono.just(new Author("1", "Author 1", Set.of())));
 
-		webTestClient.get()
-		             .uri(baseUrl + book.getId())
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody()
-		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.userId").isEqualTo(book.getUserId())
-		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
-		             .jsonPath("$.description").isEqualTo(book.getDescription())
-		             .jsonPath("$.authorIds").isArray()
-		             .jsonPath("$.categoryIds").isArray();
-
-		verify(bookRepository, times(1)).findById(book.getId());
+			webTestClient.post()
+			             .uri(baseUrl)
+			             .contentType(MediaType.APPLICATION_JSON)
+			             .body(BodyInserters.fromValue(bookDTO))
+			             .exchange()
+			             .expectStatus().isOk()
+			             .expectBody()
+			             .consumeWith(System.out::println)
+			             .jsonPath("$.id").isEqualTo(bookDTO.getId())
+			             .jsonPath("$.userId").isEqualTo(bookDTO.getUserId())
+			             .jsonPath("$.bookName").isEqualTo(bookDTO.getBookName())
+			             .jsonPath("$.description").isEqualTo(bookDTO.getDescription())
+			             .jsonPath("$.authors").isArray()
+			             .jsonPath("$.categories").isArray();
+		}
 	}
 
-	@Test
-//	TODO
-	void getBookByIdTest_notPresent() {
-		Book book = bookList.get(0);
-		given(bookRepository.findById(book.getId())).willReturn(Mono.empty());
-
-		webTestClient.get()
-		             .uri(baseUrl + book.getId())
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .isEmpty();
-
-		verify(bookRepository, times(1)).findById(book.getId());
-	}
-
-	@Test
-	void addNewBookTest_isOk() {
-		Book book = bookList.get(0);
-		given(bookRepository.save(any())).willReturn(Mono.just(book));
-
-		webTestClient.post()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody()
-		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.userId").isEqualTo(book.getUserId())
-		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
-		             .jsonPath("$.description").isEqualTo(book.getDescription());
-
-		verify(bookRepository, times(1)).save(any());
-	}
-
-	@Test
-//	TODO
-	void integrationTest_addNewBook_error_alreadyExists() {
-		Book book = bookList.get(0);
-		book.setId(null);
-		book.setBookName("New Book without ID");
-
-		given(bookRepository.save(any())).willReturn(Mono.empty());
-
-		webTestClient.post()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .consumeWith(System.out::println)
-		             .isEmpty();
-	}
-
-	@Test
-//	TODO
-	void integrationTest_addNewBook_error_invalidAuthorId() {
-		Book book = new Book();
-//		book.setId("1");
-		book.setUserId("1");
-		book.setBookName("New Book without ID");
-		book.setDescription("Description");
-		book.setPages(300);
-		book.setChapters(30);
-		book.setLastReadChapter(5);
-
-		given(bookRepository.save(any())).willReturn(Mono.empty());
-
-		webTestClient.post()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .consumeWith(System.out::println)
-		             .isEmpty();
-	}
-
-	@Test
-//	TODO
-	void integrationTest_addNewBook_error_invalidCategoryId() {
-		Book book = new Book();
-//		book.setId("1");
-		book.setUserId("1");
-		book.setBookName("New Book without ID");
-		book.setDescription("Description");
-		book.setPages(300);
-		book.setChapters(30);
-		book.setLastReadChapter(5);
-
-		given(bookRepository.save(any())).willReturn(Mono.empty());
-
-		webTestClient.post()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .consumeWith(System.out::println)
-		             .isEmpty();
-	}
-
-	@Test
-	void updateBookTest_present() {
-		Book book = bookList.get(0);
-		given(bookRepository.save(any())).willReturn(Mono.just(book));
-
-		webTestClient.put()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody()
-		             .jsonPath("$.id").isEqualTo(book.getId())
-		             .jsonPath("$.userId").isEqualTo(book.getUserId())
-		             .jsonPath("$.bookName").isEqualTo(book.getBookName())
-		             .jsonPath("$.description").isEqualTo(book.getDescription());
-
-		verify(bookRepository, times(1)).save(any());
-	}
-
-	@Test
-//	TODO
-	void integrationTest_updateBook_notPresent() {
-		Book book = new Book();
-		book.setId("1");
-		book.setUserId("1");
-		book.setBookName("New Book without ID");
-		book.setDescription("Description");
-		book.setPages(300);
-		book.setChapters(30);
-		book.setLastReadChapter(5);
-
-		given(bookRepository.save(any())).willReturn(Mono.empty());
-
-		webTestClient.put()
-		             .uri(baseUrl)
-		             .contentType(MediaType.APPLICATION_JSON)
-		             .body(BodyInserters.fromValue(book))
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .consumeWith(System.out::println)
-		             .isEmpty();
-	}
-
-	@Test
-	void deleteBookByIdTest() {
-		Book book = bookList.get(0);
-		given(bookRepository.deleteById(book.getId())).willReturn(Mono.empty());
-
-		webTestClient.delete()
-		             .uri(baseUrl + book.getId())
-		             .exchange()
-		             .expectStatus().isOk()
-		             .expectBody().isEmpty();
-
-		verify(bookRepository, times(1)).deleteById(book.getId());
-	}
-
-	@Test
-//	TODO
-	void integrationTest_deleteBookById_notPresent() {
-		Book book = bookList.get(0);
-		given(bookRepository.deleteById(book.getId())).willReturn(Mono.empty());
-
-		webTestClient.delete()
-		             .uri(baseUrl + "2")
-		             .exchange()
-		             .expectStatus().isBadRequest()
-		             .expectBody()
-		             .consumeWith(System.out::println)
-		             .isEmpty();
-	}
 }
