@@ -4,7 +4,6 @@ import com.jacob.booktracker.dtos.BookDTO;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.utils.CommonUtils;
-import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -13,16 +12,9 @@ import static org.springframework.web.reactive.function.server.ServerResponse.ba
 import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @NoArgsConstructor
-@AllArgsConstructor
 public class BookMono extends ForwardingMono<Book> {
 
 	private Mono<Book> mono;
-
-	private BookRepository bookRepository;
-
-	public BookMono(BookRepository bookRepository) {
-		this.bookRepository = bookRepository;
-	}
 
 	public BookMono(Mono<Book> mono) {
 		this.mono = mono;
@@ -43,12 +35,29 @@ public class BookMono extends ForwardingMono<Book> {
 		return this;
 	}
 
-	public BookMono saveBook() {
+	public BookMono saveBook(BookRepository bookRepository) {
 		return new BookMono(this.getMono().doOnNext(bookRepository::save));
 	}
 
 	@Override
 	Mono<Book> getMono() {
 		return mono;
+	}
+
+	public BookMono checkIfBookAlreadyExists(BookRepository bookRepository) {
+		return Book.mono(mono.flatMap(book -> getBookMono(bookRepository, book)));
+	}
+
+	private Mono<Book> getBookMono(BookRepository bookRepository, Book book) {
+		return bookRepository.existsByBookName(book.getBookName())
+		                     .flatMap(this::apply);
+	}
+
+	private Mono<Book> apply(boolean aBoolean) {
+		if (aBoolean) {
+			return Mono.empty();
+		} else {
+			return mono;
+		}
 	}
 }
