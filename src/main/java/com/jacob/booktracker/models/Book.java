@@ -2,6 +2,7 @@ package com.jacob.booktracker.models;
 
 import com.jacob.booktracker.utils.mono.BookMono;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -14,6 +15,7 @@ import java.util.Set;
 
 @Document(collection = "Books")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Book {
