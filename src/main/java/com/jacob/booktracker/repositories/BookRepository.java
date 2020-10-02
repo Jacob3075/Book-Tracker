@@ -1,10 +1,13 @@
 package com.jacob.booktracker.repositories;
 
 import com.jacob.booktracker.models.Book;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+@Repository
+public interface BookRepository extends ReactiveMongoRepository<Book, String> {
+	Mono<Book> findBookByBookName(String name);
 
-public interface BookRepository extends JpaRepository<Book, Long> {
-	List<Book> findBookByName(String name);
+	Mono<Boolean> existsByBookName(String name);
 }

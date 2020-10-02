@@ -1,14 +1,15 @@
 package com.jacob.booktracker.repositories;
 
 import com.jacob.booktracker.models.Author;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+@Repository
+public interface AuthorRepository extends ReactiveMongoRepository<Author, String> {
 
-public interface AuthorRepository extends JpaRepository<Author, Long> {
+	Flux<Author> findAuthorsByAuthorName(String name);
 
-	List<Author> findAuthorsByAuthorName(String name);
-
-	Optional<Author> findAuthorByAuthorName(String name);
+	Mono<Author> findAuthorByAuthorName(String name);
 }

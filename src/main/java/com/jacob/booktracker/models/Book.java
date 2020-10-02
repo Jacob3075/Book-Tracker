@@ -1,62 +1,43 @@
 package com.jacob.booktracker.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.jacob.booktracker.utils.streams.BookStream;
+import com.jacob.booktracker.utils.mono.BookMono;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
+import reactor.core.publisher.Mono;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
+@Document(collection = "Books")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "books", schema = "book-store-dev")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Book {
+
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
+	private String userId;
 
 	@NotEmpty
-	private String name;
+	private String bookName;
 	@NotEmpty
 	private String description;
 
 	private int pages;
 	private int chapters;
 
-	@Column(name = "last_read_chapter")
 	private int lastReadChapter;
 
-	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(
-			name = "book_author",
-			joinColumns = @JoinColumn(columnDefinition = "books_id", referencedColumnName = "id"),
-			inverseJoinColumns = @JoinColumn(columnDefinition = "authors_id", referencedColumnName = "id")
-	)
-	private List<Author> authors = new ArrayList<>();
-//	@JsonIgnoreProperties("books")
-//	private Set<Author> authors = new HashSet<>();
+	private Set<String> authorIds = new HashSet<>();
+	private Set<String> categoryIds = new HashSet<>();
 
-	@ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
-	@JoinTable(
-			name = "book_category",
-			joinColumns = @JoinColumn(columnDefinition = "books_id", referencedColumnName = "id"),
-			inverseJoinColumns = @JoinColumn(columnDefinition = "categories_id", referencedColumnName = "id")
-	)
-	private List<Category> categories = new ArrayList<>();
-//	@JsonIgnoreProperties("books")
-//	private Set<Category> categories = new HashSet<>();
-
-//	TODO: USE SETS INSTEAD OF LISTS (FIX INFINITE RECURSION WHEN USING SETS)
-
-
-	public static BookStream stream(List<Book> books) {
-		return new BookStream(books);
+	public static BookMono mono(Mono<Book> bookMono) {
+		return new BookMono(bookMono);
 	}
 }

@@ -1,40 +1,28 @@
 package com.jacob.booktracker.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.jacob.booktracker.utils.streams.CategoryStream;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-@Entity
+@Document
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "categories", schema = "book-store-dev")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Category {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	private String id;
 
-	@Column(name = "category_name")
 	@NotEmpty
 	private String categoryName;
 
-	@ManyToMany(mappedBy = "categories")
-	@JsonIgnore
-	private List<Book> books = new ArrayList<>();
-//	@JsonIgnoreProperties({"authors", "categories"})
-//	private Set<Book> books = new HashSet<>();
-
-	public static CategoryStream stream(List<Category> categories) {
-		return new CategoryStream(categories);
-	}
+	private Set<String> bookIds = new HashSet<>();
 }

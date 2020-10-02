@@ -3,9 +3,11 @@ package com.jacob.booktracker.services;
 import com.jacob.booktracker.models.Category;
 import com.jacob.booktracker.repositories.CategoryRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Service
 public class CategoryService {
@@ -15,32 +17,27 @@ public class CategoryService {
 		this.categoryRepository = categoryRepository;
 	}
 
-	public List<Category> findAll() {
-		return categoryRepository.findAll();
+	public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+		return ok().body(categoryRepository.findAll(), Category.class);
 	}
 
-	public boolean deleteById(Long id) {
-		Optional<Category> optionalCategory = this.findById(id);
-		if (optionalCategory.isPresent()) {
-			categoryRepository.deleteById(id);
-			return true;
-		} else {
-			return false;
-		}
+	public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+		return ok().body(categoryRepository.findById(serverRequest.pathVariable("id")), Category.class);
 	}
 
-	public Optional<Category> findById(Long id) {
-		return categoryRepository.findById(id);
+	public Mono<ServerResponse> deleteById(ServerRequest serverRequest) {
+		return ok().body(categoryRepository.deleteById(serverRequest.pathVariable("id")), Void.class);
 	}
 
-	public boolean addNewCategory(Category category) {
-		categoryRepository.saveAndFlush(category);
-		return true;
+	public Mono<ServerResponse> addNewCategory(ServerRequest serverRequest) {
+		return ok().body(
+				serverRequest.bodyToMono(Category.class)
+				             .flatMap(categoryRepository::save),
+				Category.class
+		);
 	}
 
-	public boolean updateCategory(Long id, Category newCategory) {
-		return Category.stream(List.of(newCategory))
-		               .updateCategory(id, categoryRepository)
-		               .saveCategory(categoryRepository);
+	public Mono<ServerResponse> updateCategory(ServerRequest serverRequest) {
+		return this.addNewCategory(serverRequest);
 	}
 }

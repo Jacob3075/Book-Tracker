@@ -1,16 +1,19 @@
 package com.jacob.booktracker.services;
 
-import com.jacob.booktracker.dtos.response.BookDTO;
+import com.jacob.booktracker.dtos.BookDTO;
+import com.jacob.booktracker.dtos.CombinedDTO;
 import com.jacob.booktracker.models.Book;
 import com.jacob.booktracker.repositories.AuthorRepository;
 import com.jacob.booktracker.repositories.BookRepository;
 import com.jacob.booktracker.repositories.CategoryRepository;
 import com.jacob.booktracker.utils.CommonUtils;
+import com.jacob.booktracker.utils.mono.CombinedDtoMono;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import static org.springframework.web.reactive.function.server.ServerResponse.ok;
 
 @Service
 public class BookService {
@@ -20,64 +23,59 @@ public class BookService {
 	private final CategoryRepository categoryRepository;
 
 	public BookService(
-			BookRepository bookRepository, AuthorRepository authorRepository,
+			BookRepository bookRepository,
+			AuthorRepository authorRepository,
 			CategoryRepository categoryRepository) {
 		this.bookRepository = bookRepository;
 		this.authorRepository = authorRepository;
 		this.categoryRepository = categoryRepository;
 	}
 
-	public List<BookDTO> findAll() {
-		return bookRepository.findAll()
-		                     .stream()
-		                     .map(CommonUtils::convertToBookDTO)
-		                     .collect(Collectors.toList());
+	public Mono<ServerResponse> findAll(ServerRequest serverRequest) {
+		return ok().body(bookRepository.findAll(), Book.class);
 	}
 
-	public boolean deleteById(Long id) {
-		Optional<Book> byId = bookRepository.findById(id);
-		if (byId.isPresent()) {
-			bookRepository.deleteById(id);
-			return true;
-		} else {
-			return false;
-		}
+	public Mono<ServerResponse> findById(ServerRequest serverRequest) {
+		return Book.mono(bookRepository.findById(serverRequest.pathVariable("id")))
+		           .getResponseDto();
 	}
 
-	public Optional<BookDTO> findById(Long id) {
-		return CommonUtils.convertToBookDTO(bookRepository.findById(id));
+	public Mono<ServerResponse> deleteById(ServerRequest serverRequest) {
+		return ok().body(bookRepository.deleteById(serverRequest.pathVariable("id")), Void.class);
 	}
 
-	public boolean updateBook(Long id, Book newBook) {
-		return Book.stream(List.of(newBook))
-		           .ifNotNewBook(bookRepository)
-		           .addNewAuthorsFromBook(authorRepository)
-		           .addNewCategoriesFromBook(categoryRepository)
-		           .updateBook(
-				           id,
-				           bookRepository,
-				           authorRepository,
-				           categoryRepository
-		           )
-		           .saveBook(bookRepository);
+	public Mono<ServerResponse> updateBook(ServerRequest serverRequest) {
+		return addNewBook(serverRequest);
 	}
 
-	public boolean addNewBook(Book book) {
-		return Book.stream(List.of(book))
-		           .ifNewBook(bookRepository)
-		           .addNewAuthorsFromBook(authorRepository)
-		           .addNewCategoriesFromBook(categoryRepository)
-		           .updateAuthors(authorRepository)
-		           .updateCategories(categoryRepository)
-		           .saveBook(bookRepository);
-	}
+	public Mono<ServerResponse> addNewBook(ServerRequest serverRequest) {
+		Mono<CombinedDTO> combinedDTOMono = serverRequest.bodyToMono(BookDTO.class)
+		                                                 .map(CommonUtils::getCombinedDto);
+		new CombinedDtoMono(combinedDTOMono)
+				.saveAuthors(authorRepository)
+				.saveCategories(categoryRepository)
+				.saveBook(bookRepository)
+				.getResponseDto();
 
-	public boolean updateChapter(Long id, int newChapter) {
-		Optional<Book> optionalBook = bookRepository.findById(id);
-		if (optionalBook.isEmpty()) return false;
-		Book book = optionalBook.get();
-		book.setLastReadChapter(newChapter);
-		bookRepository.saveAndFlush(book);
-		return true;
+
+//		serverRequest.bodyToMono(BookDTO.class)
+//		             .map(CommonUtils::getCombinedDto)
+//		             .map(combinedDTO -> {
+//			             Book.mono(Mono.just(combinedDTO.getBook()))
+//			                 .checkIfBookAlreadyExists(bookRepository)
+//			                 .saveBook(bookRepository)
+//			                 .getResponseDto();
+//		             })
+
+		return Book.mono(serverRequest.bodyToMono(Book.class))
+		           .checkIfBookAlreadyExists(bookRepository)
+		           .saveBook(bookRepository)
+		           .getResponseDto();
+
+//		return ok().body(
+//				serverRequest.bodyToMono(Book.class)
+//				             .flatMap(bookRepository::save),
+//				Book.class
+//		);
 	}
 }

@@ -1,13 +1,15 @@
-package com.jacob.booktracker.dtos.response;
+package com.jacob.booktracker.dtos;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class AuthorDTO {
-	private Long id;
+	private String id;
 	private String authorName;
 }
